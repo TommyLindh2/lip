@@ -70,13 +70,13 @@ Compare to `pip freeze > requirement.txt`. Creates a package from a LIME Pro sol
 
 
 ### A Package
-A package is a ZIP-file containing all required resources to install a package
+A package is a ZIP-file containing all required resources to install a package. Packages could be created by the LIPPackageBuilder or manually if you create a package.json file. If you create a manual file, make sure to save it with the encoding "Western (Windows 1252)", for example using the editor Sublime Text.
 
 ### A Package Store
 A Package Store could either be file based or web based. A store has a fixed URL (example "http://limebootstrap.lundalogik.se/api/apps"). The URL has subdirectories for each app (example "./checklist"). If the source is a file-based a `/app.json` should automatically be append.
 
 #### Specifying own package stores
-Open the `packages.json`-file in the actionpad-folder and add your own stores in the "stores"-node. Give the store a name and provide the address. Example: "AppStore":"http://limebootstrap.lundalogik.com/api/apps/"
+Open the `packages.json`-file in the Actionpad folder and add your own stores in the "stores"-node. Give the store a name and provide the address. Example: "AppStore":"http://limebootstrap.lundalogik.com/api/apps/"
 When installing or upgrading a package, the stores will be searched from the top to the bottom, meaning your first store will be searched for the package first, then the second store and so on.
 
 ### app.json
