@@ -50,7 +50,7 @@ Compare to `pip freeze > requirement.txt`. Creates a package from a LIME Pro sol
 
 `lip.Freeze`
 
-###List of things that LIP does not currently handle
+### List of things that LIP does not currently handle
 
 * Policies
 * Record access
