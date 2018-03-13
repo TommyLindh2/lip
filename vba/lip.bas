@@ -227,9 +227,8 @@ On Error GoTo ErrorHandler
     Application.MousePointer = 0
 
     Call Application.Shell(InstallPath + PackageName)
-    Call Application.Shell(InstallPath + PackageName + "\README.md")
-
-Exit Sub
+    
+    Exit Sub
 ErrorHandler:
     If Not m_frmProgress Is Nothing Then
         m_frmProgress.Hide
@@ -376,7 +375,7 @@ On Error GoTo ErrorHandler
                     DecreaseIndent
                 End If
                 
-                If InstallPackageComponents(PackageName, 1, Package, sInstallPath, Simulate) = False Then
+                If Not InstallPackageComponents(PackageName, 1, Package, sInstallPath, Simulate) Then
                     bOK = False
                 End If
                 
@@ -403,7 +402,7 @@ On Error GoTo ErrorHandler
                     Call showProgressbar("Installing " & PackageName, "Simulation done!", 99)
                     m_frmProgress.Hide
                     Set m_frmProgress = Nothing
-                    ThisApplication.Shell (sLogfile)
+                    Call ThisApplication.Shell(sLogfile)
                     If bOK Then
                         If vbYes = Lime.MessageBox("Simulation of installation process completed for package " & PackageName & ". Please check the result in the recently opened logfile." & VBA.vbNewLine & VBA.vbNewLine & "Do you wish to proceed with the installation?", vbInformation + vbYesNo + vbDefaultButton2) Then
                             Call lip.InstallFromZip(False, sZipPath, False)
@@ -416,32 +415,30 @@ On Error GoTo ErrorHandler
                     m_frmProgress.Hide
                     Set m_frmProgress = Nothing
                     If vbYes = Lime.MessageBox("Installation process completed for package " & PackageName & ". Do you want to open the logfile for the installation?", vbInformation + vbYesNo + vbDefaultButton1) Then
-                        ThisApplication.Shell (sLogfile)
+                        Call ThisApplication.Shell(sLogfile)
                     Else
-                        Debug.Print ("Logfile is available here: " & sLogfile)
+                        Debug.Print "Logfile is available here: " & sLogfile
                     End If
                 End If
                 
             Else
-                Call Lime.MessageBox("Couldn't find file")
+                Call Lime.MessageBox("Could not find file")
             End If
         Else
             Call Lime.MessageBox("Path must end with .zip")
         End If
     Else
-        Call Lime.MessageBox("No path to zip-file provided")
+        Call Lime.MessageBox("No path to zip file provided")
     End If
     
     Set m_frmProgress = Nothing
     
     sLog = ""
-    
     Application.MousePointer = 0
     
     Call Application.Shell(sInstallPath + PackageName)
-    Call Application.Shell(sInstallPath + PackageName + "\README.md")
 
-Exit Sub
+    Exit Sub
 ErrorHandler:
     If Not m_frmProgress Is Nothing Then
         m_frmProgress.Hide
