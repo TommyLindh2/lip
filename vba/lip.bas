@@ -48,6 +48,7 @@ On Error GoTo ErrorHandler
         m_progressDouble = 0
     End If
 
+    Indent = ""
     IndentLenght = "  "
     sLog = ""
     bOK = True
@@ -247,6 +248,7 @@ On Error GoTo ErrorHandler
     
     bOK = True
     sLog = ""
+    Indent = ""
     IndentLenght = "  "
     
     If bBrowse Then
@@ -488,8 +490,8 @@ Private Function VerifyPackage(PackageName As String, Package As Object) As Bool
         sLog = sLog + Indent + "Verifying relations between tables..." + VBA.vbNewLine
         Call showProgressbar("Verifying " & PackageName, "Verifying relations...", m_progressDouble)
         
+        IncreaseIndent
         If Not verifyRelations(Package) Then
-            IncreaseIndent
             sLog = sLog + Indent + "ERROR: Verification of the relations between tables stated in the package failed!" + VBA.vbNewLine
             DecreaseIndent
             VerifyPackage = False
@@ -499,6 +501,7 @@ Private Function VerifyPackage(PackageName As String, Package As Object) As Bool
             sLog = sLog + Indent + "Verification of relations OK" + VBA.vbNewLine
             DecreaseIndent
         End If
+        DecreaseIndent
     End If
     
     ' If we end up here, everything went fine.
@@ -2068,6 +2071,7 @@ On Error GoTo ErrorHandler
     Dim oPackageFile As Object
     Set oPackageFile = ReadPackageFile
     
+    Indent = ""
     IndentLenght = "  "
     
     PackageName = "lip"
@@ -2280,18 +2284,27 @@ Private Function verifyRelations(Package As Object) As Boolean
     Dim bField2exists As Boolean
     If Package.Item("install").Exists("relations") Then
         ' Package has relations, loop over them.
+        
         For Each oRelation In Package.Item("install").Item("relations")
+            sLog = sLog + Indent + "Verifying relation between " + oRelation.Item("table1") + "." + oRelation.Item("field1") + " and " _
+                    + oRelation.Item("table2") + "." + oRelation.Item("field2") + "..." + VBA.vbNewLine
             bField1exists = fieldExists(oRelation.Item("table1"), oRelation.Item("field1"))
             bField2exists = fieldExists(oRelation.Item("table2"), oRelation.Item("field2"))
             If bField1exists And bField2exists Then
                 ' Both fields exist: Make sure they are related to eachother
                 If Not fieldsAreRelated(Database.Classes(oRelation.Item("table1")).Fields(oRelation.Item("field1")), _
                                         Database.Classes(oRelation.Item("table2")).Fields(oRelation.Item("field2"))) Then
+                    IncreaseIndent
+                    sLog = sLog + Indent + "ERROR: Both fields already exist but they are not related to eachother!" + VBA.vbNewLine
+                    DecreaseIndent
                     verifyRelations = False
                     Exit Function
                 End If
             ElseIf (bField1exists And Not bField2exists) Or (Not bField1exists And bField2exists) Then
                 ' Only one of the fields exists which is not OK.
+                IncreaseIndent
+                sLog = sLog + Indent + "ERROR: One of the fields already exists!" + VBA.vbNewLine
+                DecreaseIndent
                 verifyRelations = False
                 Exit Function
             End If
@@ -2350,7 +2363,6 @@ ErrorHandler:
 End Function
 
 
-
 ' ##SUMMARY Returns true if the specified field is either a relation field or tab.
 Private Function isRelationField(f As LDE.field) As Boolean
     On Error GoTo ErrorHandler
@@ -2362,5 +2374,4 @@ ErrorHandler:
     isRelationField = False
     Call UI.ShowError("lip.isRelationField")
 End Function
-
 
