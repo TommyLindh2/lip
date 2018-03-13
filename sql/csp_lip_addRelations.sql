@@ -1,9 +1,16 @@
+
+IF EXISTS (SELECT name FROM sysobjects WHERE name = 'csp_lip_addrelations' AND UPPER(type) = 'P')
+   DROP PROCEDURE [csp_lip_addrelations]
+GO
+
 -- Written by: Jonny Springare
 -- Created: 2015-12-18
-IF EXISTS (SELECT name FROM sysobjects WHERE name = 'csp_lip_addRelations' AND UPPER(type) = 'P')
-   DROP PROCEDURE [csp_lip_addRelations]
-GO
-CREATE PROCEDURE [dbo].[csp_lip_addRelations]
+
+-- Creates a relation between two fields. The two fields must have been created during this particular installation.
+
+-- Modified: 2018-03-12: Changed from error to warning when relation already existed.
+
+CREATE PROCEDURE [dbo].[csp_lip_addrelations]
 	@@table1 NVARCHAR(64)
 	, @@field1 NVARCHAR(64) = NULL
 	, @@table2 NVARCHAR(64)
@@ -15,6 +22,7 @@ AS
 BEGIN
 
 	-- FLAG_EXTERNALACCESS --
+
 	DECLARE @idfield1 INT
 	DECLARE @idtable1 INT
 	DECLARE @fieldtype1 INT
@@ -23,116 +31,126 @@ BEGIN
 	DECLARE @idtable2 INT
 	DECLARE @fieldtype2 INT
 	
-	DECLARE @fieldtypeRelation INT
-	
-	DECLARE	@return_value INT
 	DECLARE @linebreak NVARCHAR(2)
 	SET @linebreak = CHAR(13) + CHAR(10)
 	SET @@errorMessage = N''
 	SET @@warningMessage = N''
 	
 	--Get id for fieldtype relation
+	DECLARE @fieldtypeRelation INT
 	SELECT @fieldtypeRelation = idfieldtype
-			FROM fieldtype
-			WHERE name = N'relation'
-				AND active = 1
-				AND creatable = 1
+	FROM fieldtype
+	WHERE [name] = N'relation'
+		AND [active] = 1
+		AND [creatable] = 1
 	
-	--Get id's
+	--Get id:s
 	EXEC lsp_getfield @@idfield=@idfield1 OUTPUT, @@name=@@field1, @@table=@@table1, @@fieldtype=@fieldtype1 OUTPUT
 	EXEC lsp_gettable @@idtable=@idtable1 OUTPUT, @@name=@@table1
 	
 	EXEC lsp_getfield @@idfield=@idfield2 OUTPUT, @@name=@@field2, @@table=@@table2, @@fieldtype=@fieldtype2 OUTPUT
 	EXEC lsp_gettable @@idtable=@idtable2 OUTPUT, @@name=@@table2
 	
+
+	-- PART 1: Validate and check stuff --
+	--------------------------------------
+
 	--Check if fields exist
-	IF @idfield1 IS NOT NULL
+	IF @idfield1 IS NULL
 	BEGIN
-		IF @idfield2 IS NOT NULL
+		SET @@errorMessage = N'ERROR: ' + @@table1 + '.' + @@field1 + N' has not been created during this installation, relation to ' + @@table2 + '.' + @@field2 + N' cannot be created.'
+		RETURN
+	END
+
+	IF @idfield2 IS NULL
+	BEGIN
+		SET @@errorMessage = N'ERROR: ' + @@table2 + '.' + @@field2 + N' has not been created during this installation, relation to ' + @@table1 + '.' + @@field1 + N' cannot be created.'
+		RETURN
+	END
+
+
+	-- Check if any of the fields existed before this installation
+	SET @@createdfields = N';' + @@createdfields
+	
+	-- Check if field1 existed but not field2
+	IF CHARINDEX(N';' + CONVERT(NVARCHAR(MAX), @idfield1) + N';', @@createdfields) > 0 AND CHARINDEX(N';' + CONVERT(NVARCHAR(MAX), @idfield2) + N';', @@createdfields) <= 0
+	BEGIN
+		SET @@errorMessage = N'ERROR: Cannot create relation between ' + @@table1 + '.' + @@field1 + N' and ' + @@table2 + '.' + @@field2 + N', since ' + @@table1 + '.' + @@field1 + N' already existed before this installation but ' + @@table2 + '.' + @@field2 + N' did not.'
+		RETURN
+	END
+
+	-- Check if field2 existed but not field1
+	IF CHARINDEX(N';' + CONVERT(NVARCHAR(MAX), @idfield1) + N';', @@createdfields) <= 0 AND CHARINDEX(N';' + CONVERT(NVARCHAR(MAX), @idfield2) + N';', @@createdfields) > 0
+	BEGIN
+		SET @@errorMessage = N'ERROR: Cannot create relation between ' + @@table1 + '.' + @@field1 + N' and ' + @@table2 + '.' + @@field2 + N', since ' + @@table2 + '.' + @@field2 + N' already existed before this installation but ' + @@table1 + '.' + @@field1 + N' did not.'
+		RETURN
+	END
+
+	-- Check if the fields are relation fields
+	IF @fieldtype1 <> @fieldtypeRelation
+	BEGIN
+		SET @@errorMessage = N'ERROR: ' + @@table1 + '.' + @@field1 + N' is not a relation field/tab, relation to ' + @@table2 + '.' + @@field2 + N' cannot be created.'
+		RETURN
+	END
+
+	IF @fieldtype2 <> @fieldtypeRelation
+	BEGIN
+		SET @@errorMessage = N'ERROR: ' + @@table2 + '.' + @@field2 + N' is not a relation field/tab, relation to ' + @@table1 + '.' + @@field1 + N' cannot be created.'
+		RETURN
+	END
+
+	-- Check if the fields exist in table relationfield
+	IF NOT EXISTS (SELECT idrelationfield FROM relationfield WHERE idfield = @idfield1)
+	BEGIN
+		SET @@errorMessage = N'ERROR: ' + @@table1 + '.' + @@field1 + N' does not exist in table ''relationfield'', relation to ' + @@table2 + '.' + @@field2 + N' cannot be created.'
+		RETURN
+	END
+
+	IF NOT EXISTS (SELECT idrelationfield FROM relationfield WHERE idfield = @idfield2)
+	BEGIN
+		SET @@errorMessage = N'ERROR: ' + @@table2 + '.' + @@field2 + N' does not exist in table ''relationfield'', relation to ' + @@table1 + '.' + @@field1 + N' cannot be created.'
+		RETURN
+	END
+
+	-- Check if the fields are already in a relation
+	IF EXISTS (SELECT relatedidfield FROM relationfieldview WHERE idfield = @idfield1)
+	BEGIN
+		IF (SELECT relatedidfield FROM relationfieldview WHERE idfield = @idfield1) = @idfield2
 		BEGIN
-			SET @@createdfields = N';' + @@createdfields
-			--Check if we have created the fields during this installation
-			IF CHARINDEX(N';' + CONVERT(nvarchar(max), @idfield1) + N';', @@createdfields) > 0 AND CHARINDEX(N';' + CONVERT(nvarchar(max), @idfield2) + N';', @@createdfields) > 0
-			BEGIN
-				--Check if the fields are relationfields
-				IF @fieldtype1 = @fieldtypeRelation
-				BEGIN
-					IF @fieldtype2 = @fieldtypeRelation
-						BEGIN
-							--Check if the fields exist in table relationfield
-							IF EXISTS (SELECT idrelationfield FROM relationfield WHERE idfield=@idfield1)
-							BEGIN
-								IF EXISTS (SELECT idrelationfield FROM relationfield WHERE idfield=@idfield1)
-								BEGIN
-									--Check if the fields are already in a relation
-									IF (SELECT relatedidfield FROM relationfieldview WHERE idfield=@idfield1) IS NULL
-									BEGIN
-										IF (SELECT relatedidfield FROM relationfieldview WHERE idfield=@idfield2) IS NULL
-										BEGIN
-											EXEC @return_value = lsp_addrelation
-													@@idfield1 = @idfield1,
-													@@idtable1 = @idtable1,
-													@@idfield2 = @idfield2,
-													@@idtable2 = @idtable2
-											IF @return_value <> 0
-											BEGIN
-												SET @@errorMessage = N'ERROR: couldn''t create relation between' + @@table2 + '.' + @@field2 + N' and ' + @@table1 + '.' + @@field1
-											END
-										END
-										ELSE
-										BEGIN
-											SET @@errorMessage = N'ERROR: ' + @@table2 + '.' + @@field2 + N' is already in a relation, relation to ' + @@table1 + '.' + @@field1 + N' can''t be created.'
-										END
-									END
-									ELSE
-									BEGIN
-										IF (SELECT relatedidfield FROM relationfieldview WHERE idfield=@idfield1) = @idfield2
-										BEGIN
-											SET @@warningMessage = N'Warning: Relation between ' + @@table1 + '.' + @@field1 + ' and ' + @@table2 + '.' + @@field2 + N' already exists.'
-										END
-										ELSE
-										BEGIN
-											SET @@errorMessage = N'ERROR: ' + @@table1 + '.' + @@field1 + N' is already in a relation, relation to ' + @@table2 + '.' + @@field2 + N' can''t be created.'
-										END
-									END
-								END
-								ELSE
-								BEGIN
-									SET @@errorMessage = N'ERROR: ' + @@table2 + '.' + @@field2 + N' does not exist in table ''relationfield'', relation to ' + @@table1 + '.' + @@field1 + N' can''t be created.'
-								END
-							END
-							ELSE
-							BEGIN
-								SET @@errorMessage = N'ERROR: ' + @@table1 + '.' + @@field1 + N' does not exist in table ''relationfield'', relation to ' + @@table2 + '.' + @@field2 + N' can''t be created.'
-							END
-						END
-						ELSE
-						BEGIN
-							SET @@errorMessage = N'ERROR: ' + @@table2 + '.' + @@field2 + N' is not a relationfield/tab, relation to ' + @@table1 + '.' + @@field1 + N' can''t be created.'
-							RETURN
-						END
-				END
-				ELSE
-				BEGIN
-					SET @@errorMessage = N'ERROR: ' + @@table1 + '.' + @@field1 + N' is not a relationfield/tab, relation to ' + @@table2 + '.' + @@field2 + N' can''t be created.'
-					RETURN
-				END
-			END
-			ELSE
-			BEGIN
-				SET @@errorMessage = N'ERROR: Cannot create relation between ' + @@table1 + '.' + @@field1 + N' and ' + @@table2 + '.' + @@field2 + N', since one of the fields already existed before installation.'
-				RETURN
-			END
+			SET @@warningMessage = N'Warning: Relation between ' + @@table1 + '.' + @@field1 + ' and ' + @@table2 + '.' + @@field2 + N' already exists.'
 		END
 		ELSE
 		BEGIN
-			SET @@errorMessage = N'ERROR: ' + @@table2 + '.' + @@field2 + N' hasn''t been created during this installation, relation to ' + @@table1 + '.' + @@field1 + N' can''t be created.'
-			RETURN
+			SET @@errorMessage = N'ERROR: ' + @@table1 + '.' + @@field1 + N' is already in a relation, relation to ' + @@table2 + '.' + @@field2 + N' cannot be created.'
+		END
+		RETURN
+	END
+
+
+	IF EXISTS (SELECT relatedidfield FROM relationfieldview WHERE idfield = @idfield2)
+	BEGIN
+		SET @@errorMessage = N'ERROR: ' + @@table2 + '.' + @@field2 + N' is already in a relation, relation to ' + @@table1 + '.' + @@field1 + N' can''t be created.'
+		RETURN
+	END
+	--------------------------------------
+
+	-- PART 2: Add the relation --
+	------------------------------
+
+	IF @@errorMessage = N'' AND @@warningMessage = N''
+	BEGIN
+		-- If we arrive here, all is well: Add the relation!
+		DECLARE	@return_value INT
+		EXEC @return_value = lsp_addrelation
+				@@idfield1 = @idfield1,
+				@@idtable1 = @idtable1,
+				@@idfield2 = @idfield2,
+				@@idtable2 = @idtable2
+	
+		IF @return_value <> 0
+		BEGIN
+			SET @@errorMessage = N'ERROR: could not create relation between ' + @@table2 + '.' + @@field2 + N' and ' + @@table1 + '.' + @@field1 + N'.'
 		END
 	END
-	ELSE
-	BEGIN
-		SET @@errorMessage = N'ERROR: ' + @@table1 + '.' + @@field1 + N' hasn''t been created during this installation, relation to ' + @@table2 + '.' + @@field2 + N' can''t be created.'
-		RETURN
-	END	
+	------------------------------
 END
