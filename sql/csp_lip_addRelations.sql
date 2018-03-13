@@ -112,24 +112,27 @@ BEGIN
 		RETURN
 	END
 
-	-- Check if the fields are already in a relation
-	IF EXISTS (SELECT relatedidfield FROM relationfieldview WHERE idfield = @idfield1)
+	-- Check if one of the two fields already is in a relation (for new relations, there will be a row in relationfieldview but relatedidfield will be NULL).
+	DECLARE @relatedidfield INT
+	SELECT @relatedidfield = relatedidfield FROM relationfieldview WHERE idfield = @idfield1
+	IF @relatedidfield IS NOT NULL
 	BEGIN
-		IF (SELECT relatedidfield FROM relationfieldview WHERE idfield = @idfield1) = @idfield2
+		IF @relatedidfield = @idfield2
 		BEGIN
 			SET @@warningMessage = N'Warning: Relation between ' + @@table1 + '.' + @@field1 + ' and ' + @@table2 + '.' + @@field2 + N' already exists.'
 		END
 		ELSE
 		BEGIN
-			SET @@errorMessage = N'ERROR: ' + @@table1 + '.' + @@field1 + N' is already in a relation, relation to ' + @@table2 + '.' + @@field2 + N' cannot be created.'
+			SET @@errorMessage = N'ERROR: ' + @@table1 + '.' + @@field1 + N' is already in another relation, relation to ' + @@table2 + '.' + @@field2 + N' cannot be created.'
 		END
 		RETURN
 	END
 
-
-	IF EXISTS (SELECT relatedidfield FROM relationfieldview WHERE idfield = @idfield2)
+	SET @relatedidfield = NULL		-- Must reset it first, if the below SELECT statement does not return any hits at all, @relatedidfield will remain unchanged. 
+	SELECT @relatedidfield = relatedidfield FROM relationfieldview WHERE idfield = @idfield2
+	IF @relatedidfield IS NOT NULL
 	BEGIN
-		SET @@errorMessage = N'ERROR: ' + @@table2 + '.' + @@field2 + N' is already in a relation, relation to ' + @@table1 + '.' + @@field1 + N' can''t be created.'
+		SET @@errorMessage = N'ERROR: ' + @@table2 + '.' + @@field2 + N' is already in another relation, relation to ' + @@table1 + '.' + @@field1 + N' cannot be created.'
 		RETURN
 	END
 	--------------------------------------
