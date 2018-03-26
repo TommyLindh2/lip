@@ -227,9 +227,8 @@ On Error GoTo ErrorHandler
     Application.MousePointer = 0
 
     Call Application.Shell(InstallPath + PackageName)
-    Call Application.Shell(InstallPath + PackageName + "\README.md")
-
-Exit Sub
+    
+    Exit Sub
 ErrorHandler:
     If Not m_frmProgress Is Nothing Then
         m_frmProgress.Hide
@@ -376,7 +375,7 @@ On Error GoTo ErrorHandler
                     DecreaseIndent
                 End If
                 
-                If InstallPackageComponents(PackageName, 1, Package, sInstallPath, Simulate) = False Then
+                If Not InstallPackageComponents(PackageName, 1, Package, sInstallPath, Simulate) Then
                     bOK = False
                 End If
                 
@@ -403,7 +402,7 @@ On Error GoTo ErrorHandler
                     Call showProgressbar("Installing " & PackageName, "Simulation done!", 99)
                     m_frmProgress.Hide
                     Set m_frmProgress = Nothing
-                    ThisApplication.Shell (sLogfile)
+                    Call ThisApplication.Shell(sLogfile)
                     If bOK Then
                         If vbYes = Lime.MessageBox("Simulation of installation process completed for package " & PackageName & ". Please check the result in the recently opened logfile." & VBA.vbNewLine & VBA.vbNewLine & "Do you wish to proceed with the installation?", vbInformation + vbYesNo + vbDefaultButton2) Then
                             Call lip.InstallFromZip(False, sZipPath, False)
@@ -416,32 +415,30 @@ On Error GoTo ErrorHandler
                     m_frmProgress.Hide
                     Set m_frmProgress = Nothing
                     If vbYes = Lime.MessageBox("Installation process completed for package " & PackageName & ". Do you want to open the logfile for the installation?", vbInformation + vbYesNo + vbDefaultButton1) Then
-                        ThisApplication.Shell (sLogfile)
+                        Call ThisApplication.Shell(sLogfile)
                     Else
-                        Debug.Print ("Logfile is available here: " & sLogfile)
+                        Debug.Print "Logfile is available here: " & sLogfile
                     End If
                 End If
                 
             Else
-                Call Lime.MessageBox("Couldn't find file")
+                Call Lime.MessageBox("Could not find file")
             End If
         Else
             Call Lime.MessageBox("Path must end with .zip")
         End If
     Else
-        Call Lime.MessageBox("No path to zip-file provided")
+        Call Lime.MessageBox("No path to zip file provided")
     End If
     
     Set m_frmProgress = Nothing
     
     sLog = ""
-    
     Application.MousePointer = 0
     
     Call Application.Shell(sInstallPath + PackageName)
-    Call Application.Shell(sInstallPath + PackageName + "\README.md")
 
-Exit Sub
+    Exit Sub
 ErrorHandler:
     If Not m_frmProgress Is Nothing Then
         m_frmProgress.Hide
@@ -902,25 +899,20 @@ ErrorHandler:
 End Function
 
 Private Function InstallLocalize(oJSON As Object, Simulate As Boolean) As Boolean
-On Error GoTo ErrorHandler
+    On Error GoTo ErrorHandler
+    
     Dim bOK As Boolean
-    Dim Localize As Variant
+    Dim oLocalization As Object
     bOK = True
     
-    For Each Localize In oJSON
-        If AddOrCheckLocalize( _
-            Localize.Item("owner"), _
-            Localize.Item("code"), _
-            Localize.Item("context"), _
-            Localize.Item("en_us"), _
-            Localize.Item("sv"), _
-            Localize.Item("no"), _
-            Localize.Item("fi"), _
-            Simulate _
-        ) = False Then
+    For Each oLocalization In oJSON
+        If Not AddOrCheckLocalize(oLocalization, Simulate) Then
             bOK = False
         End If
-    Next Localize
+    Next oLocalization
+    
+    ' Reset dictionary to make the new/updated localizations useable.
+    Set localize.dicLookup = Nothing
     
     InstallLocalize = bOK
     
@@ -1875,55 +1867,89 @@ ErrorHandler:
     Call UI.ShowError("lip.InstallLIP")
 End Sub
 
-Private Function AddOrCheckLocalize(sOwner As String, sCode As String, sDescription As String, sEN_US As String, sSV As String, sNO As String, sFI As String, Simulate As Boolean) As Boolean
-On Error GoTo ErrorHandler
-    Dim oFilter As New LDE.Filter
-    Dim oRecs As New LDE.Records
 
+' ##SUMMARY Returns true if the localize record specified was either created or updated correctly.
+Private Function AddOrCheckLocalize(oLocalization As Object, Simulate As Boolean) As Boolean
+    On Error GoTo ErrorHandler
+    
+    ' Get keys
+    Dim sOwner As String
+    Dim sCode As String
+    sOwner = oLocalization.Item("owner")
+    sCode = oLocalization.Item("code")
+    
+    ' Build filter and get hit count
+    Dim oFilter As New LDE.Filter
     Call oFilter.AddCondition("owner", lkOpEqual, sOwner)
     Call oFilter.AddCondition("code", lkOpEqual, sCode)
     Call oFilter.AddOperator(lkOpAnd)
-
-    If oFilter.HitCount(Database.Classes("localize")) = 0 Then
-        sLog = sLog + Indent + "Localization " & sOwner & "." & sCode & " not found, creating new!" + VBA.vbNewLine
+    
+    Dim hitCount As Long
+    hitCount = oFilter.hitCount(Database.Classes("localize"))
+    
+    Dim oItem As Variant
+    If hitCount = 0 Then
+        ' Create a new record
         If Not Simulate Then
+            sLog = sLog + Indent + "Localization " & sOwner & "." & sCode & " not found, creating new!" + VBA.vbNewLine
+            
             Dim oRec As New LDE.Record
             Call oRec.Open(Database.Classes("localize"))
-            oRec.Value("owner") = sOwner
-            oRec.Value("code") = sCode
-            oRec.Value("context") = sDescription
-            oRec.Value("sv") = sSV
-            oRec.Value("en_us") = sEN_US
-            'oRec.Value("no") = sNO
-            'oRec.Value("fi") = sFI
+'
+            For Each oItem In oLocalization
+                Call SetRecordPropertyText(oRec, VBA.CStr(oItem), oLocalization(oItem))
+            Next oItem
+            
             Call oRec.Update
+        Else
+            sLog = sLog + Indent + "Localization " & sOwner & "." & sCode & " not found, would have created new." + VBA.vbNewLine
         End If
-    ElseIf oFilter.HitCount(Database.Classes("localize")) = 1 Then
-        sLog = sLog + Indent + "Updating localization " + sOwner + "." + sCode + VBA.vbNewLine
-        
+    ElseIf hitCount = 1 Then
+        ' Update the existing record found
         If Not Simulate Then
+            sLog = sLog + Indent + "Localization " + sOwner + "." + sCode + " was found, updating! " + VBA.vbNewLine
+            
+            Dim oRecs As New LDE.Records
             Call oRecs.Open(Database.Classes("localize"), oFilter)
-            oRecs(1).Value("owner") = sOwner
-            oRecs(1).Value("code") = sCode
-            oRecs(1).Value("context") = sDescription
-            oRecs(1).Value("sv") = sSV
-            oRecs(1).Value("en_us") = sEN_US
-            oRecs(1).Value("no") = sNO
-            oRecs(1).Value("fi") = sFI
+            
+            For Each oItem In oLocalization
+                Call SetRecordPropertyText(oRecs(1), VBA.CStr(oItem), oLocalization(oItem))
+            Next oItem
+            
             Call oRecs.Update
+        Else
+            sLog = sLog + Indent + "Localization " + sOwner + "." + sCode + " was found, would have updated. " + VBA.vbNewLine
         End If
-
     Else
-        sLog = sLog + Indent + "There are multiple copies of " & sOwner & "." & sCode & ". Fix this and try again."
+        ' Error, multiple hits on key owner.code.
+        sLog = sLog + Indent + "ERROR: There are multiple copies of " & sOwner & "." & sCode & ". Fix this and try again."
+        AddOrCheckLocalize = False
+        Exit Function
     End If
-
-    Set Localize.dicLookup = Nothing
+    
     AddOrCheckLocalize = True
+    
     Exit Function
 ErrorHandler:
-    sLog = sLog + Indent + ("Error while validating or adding Localize") + VBA.vbNewLine
+    sLog = sLog + Indent + "ERROR: An error occurred while validating or adding localizations: " + Err.Description + VBA.vbNewLine
     AddOrCheckLocalize = False
 End Function
+
+
+' ##SUMMARY Tries to add a text value to the specified property on a record.
+' If there is no field with the specified name it just continues without reporting any errors.
+Private Sub SetRecordPropertyText(oRec As LDE.Record, sPropertyName As String, sText As String)
+    On Error GoTo ErrorHandler
+    
+    If oRec.Fields.Exists(sPropertyName) Then
+        oRec.Value(sPropertyName) = sText
+    End If
+
+    Exit Sub
+ErrorHandler:
+    Call UI.ShowError("lip.SetRecordPropertyText")
+End Sub
+
 
 Private Sub IncreaseIndent()
 On Error GoTo ErrorHandler
