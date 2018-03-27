@@ -611,22 +611,15 @@ On Error GoTo ErrorHandler
 '        DecreaseIndent
 '    End If
         
-    ' Install files. ##TODO: What is this and when is it done?
+    ' Install files. This is for installation of any kind of files that are not normally part of an add-on.
     m_progressDouble = m_progressDouble + ProgressBarIncrease
     If Package.Item("install").Exists("files") = True Then
-        IncreaseIndent
-        
+        Call IncreaseIndent
         Call showProgressbar("Installing " & PackageName, "Installing files...", m_progressDouble)
         If Not InstallFiles(Package.Item("install").Item("files"), PackageName, InstallPath, Simulate) Then
             bOK = False
         End If
-        DecreaseIndent
-        
-        ' ##TODO: Why is this done twice?
-        If Not InstallFiles(Package.Item("install").Item("files"), PackageName, InstallPath, Simulate) Then
-            bOK = False
-        End If
-        
+        Call DecreaseIndent
     End If
     
     ' Update package file.
