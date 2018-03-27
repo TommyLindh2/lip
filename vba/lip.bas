@@ -321,7 +321,7 @@ On Error GoTo ErrorHandler
     
                 ' Get package information from json-file
                 Dim Package As Object
-                Dim sJSON As String
+                Dim sJson As String
                 Dim sLine As String
         
                 'Look for packages.json or app.json
@@ -344,10 +344,10 @@ On Error GoTo ErrorHandler
                 ' Read JSON from file
                 Do Until EOF(1)
                     Line Input #1, sLine
-                    sJSON = sJSON & sLine
+                    sJson = sJson & sLine
                 Loop
                 Close #1
-                Set Package = JSON.parse(sJSON)
+                Set Package = JSON.parse(sJson)
                 
                 ' ##TODO: Vad är installPath för inställning?
                 If Package.Exists("installPath") Then
@@ -585,6 +585,15 @@ On Error GoTo ErrorHandler
         End If
     End If
     
+    ' Copy actionpads
+    m_progressDouble = m_progressDouble + ProgressBarIncrease
+    If Package.Item("install").Exists("actionpads") Then
+        Call showProgressbar("Installing " & PackageName, "Copying actionpads...", m_progressDouble)
+        If Not InstallActionpads(Package.Item("install").Item("actionpads"), InstallPath & PackageName, Simulate) Then
+            bOK = False
+        End If
+    End If
+    
     ' Rollback if only simulation
     m_progressDouble = m_progressDouble + ProgressBarIncrease
     If Simulate Then
@@ -644,6 +653,51 @@ ErrorHandler:
     Call UI.ShowError("lip.InstallPackageComponents")
 End Function
 
+
+' ##SUMMARY Copies the Actionpads defined in the LIP package to the Actionpad folder.
+' If a file with the same name already exists, it does not replace that file and prints a warning to the log file.
+Private Function InstallActionpads(oJSON As Object, sPackageFolderPath As String, bSimulate As Boolean) As Boolean
+    On Error GoTo ErrorHandler
+    
+    sLog = sLog + Indent + "Copying Actionpads..." + VBA.vbNewLine
+    
+    ' Loop over all actionpad objects in the JSON
+    Dim oActionpad As Object
+    For Each oActionpad In oJSON
+        Call IncreaseIndent
+        sLog = sLog + Indent + "Copying Actionpad file """ + oActionpad.Item("fileName") + """..." + VBA.vbNewLine
+        
+        ' Check if the actionpad already exists
+        If VBA.Dir(Application.WebFolder & oActionpad.Item("fileName")) <> "" Then
+            Call IncreaseIndent
+            sLog = sLog + Indent + "Warning: Actionpad file """ + oActionpad.Item("fileName") + """ already exists and will NOT be replaced!" + VBA.vbNewLine
+            Call DecreaseIndent
+        Else
+            If Not bSimulate Then
+                ' Copy the actionpad
+                Call VBA.FileCopy(sPackageFolderPath & "\" + oActionpad.Item("relPath"), LCO.MakeFileName(Application.WebFolder, oActionpad.Item("fileName")))
+                Call IncreaseIndent
+                sLog = sLog + Indent + "Actionpad file """ + oActionpad.Item("fileName") + """ copied to the Actionpads folder. Remember to manually register lbs.html as Actionpad on the affected table." + VBA.vbNewLine
+                Call DecreaseIndent
+            Else
+                ' Just log that it would have been copied.
+                Call IncreaseIndent
+                sLog = sLog + Indent + "No clash with existing files: Actionpad file """ + oActionpad.Item("fileName") + """ would have been copied to the Actionpads folder." + VBA.vbNewLine
+                Call DecreaseIndent
+            End If
+        End If
+        Call DecreaseIndent
+    Next oActionpad
+    
+    InstallActionpads = True
+
+    Exit Function
+ErrorHandler:
+    InstallActionpads = False
+    Call UI.ShowError("lip.InstallActionpads")
+End Function
+
+
 Private Sub InstallDependencies(Package As Object, Simulate As Boolean)
 On Error GoTo ErrorHandler
     Dim DependencyName As Variant
@@ -690,7 +744,7 @@ End Function
 'LJE Search for package in online stores
 Public Function SearchForPackageInOnlineStores(PackageName As String) As Object
 On Error GoTo ErrorHandler
-    Dim sJSON As String
+    Dim sJson As String
     Dim oJSON As Object
     Dim oStores As Object
     Dim Path As String
@@ -706,13 +760,13 @@ On Error GoTo ErrorHandler
         Path = oStores.Item(oStore)
         sLog = sLog + Indent + ("Looking for package at store '" & oStore & "'") + VBA.vbNewLine
         
-        sJSON = getJSON(Path + PackageName + "/")
+        sJson = getJSON(Path + PackageName + "/")
 
-        If sJSON <> "" Then
-            sJSON = VBA.Left(sJSON, VBA.Len(sJSON) - 1) & ",""source"":""" & oStores.Item(oStore) & """}" 'Add a source node so we know where the package exists
+        If sJson <> "" Then
+            sJson = VBA.Left(sJson, VBA.Len(sJson) - 1) & ",""source"":""" & oStores.Item(oStore) & """}" 'Add a source node so we know where the package exists
         End If
 
-        Set oJSON = ParseJson(sJSON) 'Create a JSON object from the string
+        Set oJSON = ParseJson(sJson) 'Create a JSON object from the string
 
         If Not oJSON Is Nothing Then
             If oJSON.Item("error") = "" Then
@@ -774,26 +828,26 @@ On Error GoTo ErrorHandler
         
         For Each fld In startFolder.SubFolders
             If LCase(fld.Name) = LCase(PackageName) Then
-                Dim sJSON As String
+                Dim sJson As String
                 Dim sLine As String
                 
                 Open fld.Path & "\" & "app.json" For Input As #1
                         
                 Do Until EOF(1)
                     Line Input #1, sLine
-                    sJSON = sJSON & sLine
+                    sJson = sJson & sLine
                 Loop
                 
                 
-                If sJSON <> "" Then
+                If sJson <> "" Then
                     Dim sPathToLocalPackage As String
                     sPathToLocalPackage = VBA.Replace(fld.Path, "\", "\\")
-                    sJSON = VBA.Left(sJSON, VBA.Len(sJSON) - 1) & ",""localsource"":""" & sPathToLocalPackage + "\" + fld.Name + """}"   'Add a source node so we know where the package exists
+                    sJson = VBA.Left(sJson, VBA.Len(sJson) - 1) & ",""localsource"":""" & sPathToLocalPackage + "\" + fld.Name + """}"   'Add a source node so we know where the package exists
                 End If
     
                 Close #1
                 
-                Set oJSON = ParseJson(sJSON) 'Create a JSON object from the string
+                Set oJSON = ParseJson(sJson) 'Create a JSON object from the string
                 
                 If Not oJSON.Item("install") Is Nothing Then
                     Debug.Print Indent + ("Package/App '" & PackageName & "' found in local store '" & oStore & "'")
@@ -869,10 +923,10 @@ ErrorHandler:
     getJSON = ""
 End Function
 
-Private Function ParseJson(sJSON As String) As Object
+Private Function ParseJson(sJson As String) As Object
 On Error GoTo ErrorHandler
     Dim oJSON As Object
-    Set oJSON = JSON.parse(sJSON)
+    Set oJSON = JSON.parse(sJson)
     Set ParseJson = oJSON
 Exit Function
 ErrorHandler:
@@ -912,7 +966,7 @@ Private Function InstallLocalize(oJSON As Object, Simulate As Boolean) As Boolea
     Next oLocalization
     
     ' Reset dictionary to make the new/updated localizations useable.
-    Set localize.dicLookup = Nothing
+    Set Localize.dicLookup = Nothing
     
     InstallLocalize = bOK
     
@@ -1712,17 +1766,17 @@ End Function
 
 Private Function ReadPackageFile() As Object
 On Error GoTo ErrorHandler
-    Dim sJSON As String
+    Dim sJson As String
     Dim oJSON As Object
-    sJSON = getJSON(WebFolder + "packages.json")
+    sJson = getJSON(WebFolder + "packages.json")
 
-    If sJSON = "" Then
+    If sJson = "" Then
         sLog = sLog + Indent + "Error: No packages.json found!" + VBA.vbNewLine
         Set ReadPackageFile = Nothing
         Exit Function
     End If
 
-    Set oJSON = JSON.parse(sJSON)
+    Set oJSON = JSON.parse(sJson)
     Set ReadPackageFile = oJSON
 
     Exit Function
