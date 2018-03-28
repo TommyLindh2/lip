@@ -188,7 +188,7 @@ On Error GoTo ErrorHandler
     sLog = sLog + Indent + "===================================" + VBA.vbNewLine
     
     Dim sLogfile As String
-    sLogfile = Application.TemporaryFolder & "\" & PackageName & VBA.Replace(VBA.Replace(VBA.Replace(VBA.Now(), ":", ""), "-", ""), " ", "") & ".txt"
+    sLogfile = Application.TemporaryFolder & "\" & PackageName & GetCleanTimestamp() & ".txt"
     Open sLogfile For Output As #1
     Print #1, sLog
     Close #1
@@ -392,7 +392,7 @@ On Error GoTo ErrorHandler
                 sLog = sLog + Indent + "===================================" + VBA.vbNewLine
                 
                 Dim sLogfile As String
-                sLogfile = Application.TemporaryFolder & "\" & PackageName & VBA.Replace(VBA.Replace(VBA.Replace(VBA.Now(), ":", ""), "-", ""), " ", "") & ".txt"
+                sLogfile = Application.TemporaryFolder & "\" & PackageName & GetCleanTimestamp() & ".txt"
                 Open sLogfile For Output As #1
                 Print #1, sLog
                 Close #1
@@ -449,7 +449,7 @@ End Sub
 
 Private Function SaveLogFile(strPackageName As String) As String
     Dim sLogfile As String
-    sLogfile = Application.TemporaryFolder & "\" & strPackageName & VBA.Replace(VBA.Replace(VBA.Replace(VBA.Now(), ":", ""), "-", ""), " ", "") & ".txt"
+    sLogfile = Application.TemporaryFolder & "\" & strPackageName & GetCleanTimestamp() & ".txt"
     Open sLogfile For Output As #1
     Print #1, sLog
     Close #1
@@ -1893,16 +1893,16 @@ On Error GoTo ErrorHandler
         sLog = sLog + Indent + "Could not download the package vba_json from the Appstore: " + BaseURL + AppStoreApiURL
     End If
     Dim sLogfile As String
-    sLogfile = Application.TemporaryFolder & "\" & "lip" & VBA.Replace(VBA.Replace(VBA.Replace(VBA.Now(), ":", ""), "-", ""), " ", "") & ".txt"
+    sLogfile = Application.TemporaryFolder & "\" & "lip" & GetCleanTimestamp() & ".txt"
     Open sLogfile For Output As #1
     Print #1, sLog
     Close #1
-        
+    
     Call showProgressbar("Installing LIP", "Installation done!", 99)
     
     m_frmProgress.Hide
     Set m_frmProgress = Nothing
-        
+    
     Application.Shell sLogfile
     
     Call AskIfInstallPackageBuilder
@@ -2448,3 +2448,33 @@ ErrorHandler:
     Call UI.ShowError("lip.isRelationField")
 End Function
 
+
+' ##SUMMARY Returns a timestamp where all characters except digits have been removed.
+Private Function GetCleanTimestamp() As String
+    On Error GoTo ErrorHandler
+    
+    Dim sResult As String
+    sResult = VBA.Now
+    
+    ' Replace all special characters that are not approved in file names in Windows
+    sResult = VBA.Replace(sResult, "\", "")
+    sResult = VBA.Replace(sResult, "/", "")
+    sResult = VBA.Replace(sResult, ":", "")
+    sResult = VBA.Replace(sResult, "*", "")
+    sResult = VBA.Replace(sResult, "?", "")
+    sResult = VBA.Replace(sResult, """", "")
+    sResult = VBA.Replace(sResult, "<", "")
+    sResult = VBA.Replace(sResult, ">", "")
+    sResult = VBA.Replace(sResult, "|", "")
+    
+    ' Replace all additional unwanted characters that can be part of a timestamp in different locales
+    sResult = VBA.Replace(sResult, "-", "")
+    sResult = VBA.Replace(sResult, " ", "")
+    sResult = VBA.Replace(sResult, ".", "")
+    
+    GetCleanTimestamp = sResult
+
+    Exit Function
+ErrorHandler:
+    Call UI.ShowError("lip.GetCleanTimestamp")
+End Function
