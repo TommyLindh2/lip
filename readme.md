@@ -17,7 +17,7 @@ Before you can start installing packages, you need to install LIP to your Lime C
 5. Restart the Lime CRM client.
 6. Import the `vba/lip.bas` file to your VBA.
 7. Import the `vba/FormProgress.frm` to your VBA.
-8. Type the command `lip.InstallLIP` in the Immediate-window of the VBA and press Enter to install all necessary modules. If you click Yes when LIP asks if it should also install the Package Builder, do not forget to also add the SQL procedures needed by the Package Builder manually afterwards.
+8. Type the command `lip.InstallLIP` in the Immediate-window of the VBA and press Enter to install all necessary modules. If you click Yes when LIP asks if it should also install the Package Builder, do not forget to also add the SQL procedures needed by the Package Builder manually afterwards. Follow the steps [here](https://github.com/Lundalogik/addon-lip-package-builder).
 9. Compile and save the VBA
 10. Publish actionpads
 
