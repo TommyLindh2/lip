@@ -9,6 +9,10 @@ Private Const AppStoreApiURL As String = "/apps/"
 
 Private Const DefaultInstallPath As String = "packages\"
 
+' Used for setting the installed LIP version in the packages.json file that LIP creates upon first install.
+Private Const m_sLIPVersion As String = "1.3.0"
+
+
 Private IndentLenght As String
 Private Indent As String
 Private sLog As String
@@ -972,7 +976,7 @@ End Function
 Private Function InstallFiles(oJSON As Object, PackageName As String, InstallPath As String, Simulate As Boolean) As Boolean
 On Error GoTo ErrorHandler
     Dim bOK As Boolean
-    Dim FSO As Object
+    Dim fso As Object
     Dim FromPath As String
     Dim ToPath As String
     Dim File As Variant
@@ -991,9 +995,9 @@ On Error GoTo ErrorHandler
         If Right(ToPath, 1) = "\" Then
             ToPath = VBA.Left(ToPath, Len(ToPath) - 1)
         End If
-        Set FSO = CreateObject("scripting.filesystemobject")
+        Set fso = CreateObject("scripting.filesystemobject")
 
-        FSO.CopyFolder Source:=FromPath, Destination:=ToPath
+        fso.CopyFolder Source:=FromPath, Destination:=ToPath
         On Error Resume Next 'It is a beautiful languge
         If Simulate Then
             VBA.Kill ToPath
@@ -1538,7 +1542,7 @@ End Function
 Private Sub UnZip(PackageName As String, InstallPath As String)
     On Error GoTo ErrorHandler
     
-    Dim FSO As Object
+    Dim fso As Object
     Dim oApp As Object
     Dim Fname As Variant
     Dim FileNameFolder As Variant
@@ -1549,11 +1553,11 @@ Private Sub UnZip(PackageName As String, InstallPath As String)
     FileNameFolder = InstallPath & PackageName & "\"
 
     On Error Resume Next
-    Set FSO = CreateObject("scripting.filesystemobject")
+    Set fso = CreateObject("scripting.filesystemobject")
     'Delete files
-    FSO.DeleteFile FileNameFolder & "*.*", True
+    fso.DeleteFile FileNameFolder & "*.*", True
     'Delete subfolders
-    FSO.DeleteFolder FileNameFolder & "*.*", True
+    fso.DeleteFolder FileNameFolder & "*.*", True
 
     'Make the normal folder in DefPath
     MkDir FileNameFolder
@@ -1562,7 +1566,7 @@ Private Sub UnZip(PackageName As String, InstallPath As String)
     oApp.Namespace(FileNameFolder).CopyHere oApp.Namespace(Fname).Items
 
     'Delete zip-file
-    FSO.DeleteFile Fname, True
+    fso.DeleteFile Fname, True
 
     Exit Sub
 ErrorHandler:
@@ -1807,32 +1811,37 @@ ErrorHandler:
     Set FindPackageLocally = Nothing
     Call UI.ShowError("lip.FindPackageLocally")
 End Function
-'LJE TODO Refactor with helper method to write json
-Public Sub CreateANewPackageFile()
-On Error GoTo ErrorHandler
-    Dim fs As Object
-    Dim a As Object
-    Set fs = CreateObject("Scripting.FileSystemObject")
-    Set a = fs.CreateTextFile(WebFolder + "packages.json", True)
-    a.WriteLine ("{")
+
+
+' ##SUMMARY Creates the packages.json file that is needed by LIP.
+Public Sub CreateNewPackagesFile()
+    On Error GoTo ErrorHandler
+    
+    Dim fso As Object
+    Dim tf As Object
+    Set fso = VBA.CreateObject("Scripting.FileSystemObject")
+    Set tf = fso.CreateTextFile(WebFolder + "packages.json", True)
+    tf.WriteLine ("{")
     'LJE VersionHandling
     'TODO write to GitHub
-    a.WriteLine ("    ""lipversion"":""1.2.0"",")
-    'LJE Should perhaps have two different objects - one onlinestore and one localstore
-    a.WriteLine ("    ""onlinestores"":{")
-    a.WriteLine ("        ""PackageStore"":""http://api.lime-bootstrap.com/packages/"",")
-    a.WriteLine ("        ""Bootstrap Appstore"":""http://api.lime-bootstrap.com/apps/""")
-    a.WriteLine ("    },")
-    a.WriteLine ("    ""localstores"":{")
-    a.WriteLine ("    },")
-    a.WriteLine ("    ""dependencies"":{")
-    a.WriteLine ("    }")
-    a.WriteLine ("}")
-    a.Close
+    tf.WriteLine ("    ""lipversion"" : """ & m_sLIPVersion & """,")
+    tf.WriteLine ("    ""onlinestores"" : {")
+    tf.WriteLine ("        ""PackageStore"" : ""http://api.lime-bootstrap.com/packages/"",")
+    tf.WriteLine ("        ""Bootstrap Appstore"" : ""http://api.lime-bootstrap.com/apps/""")
+    tf.WriteLine ("    },")
+    tf.WriteLine ("    ""localstores"" : {")
+    tf.WriteLine ("    },")
+    tf.WriteLine ("    ""dependencies"" : {")
+    tf.WriteLine ("    }")
+    tf.WriteLine ("}")
+    
+    tf.Close
+    
     Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.CreateNewPackageFile")
+    Call UI.ShowError("lip.CreateNewPackagesFile")
 End Sub
+
 
 Public Function GetAllInstalledPackages() As String
 On Error GoTo ErrorHandler
@@ -1851,6 +1860,7 @@ ErrorHandler:
     Call UI.ShowError("lip.GetInstalledPackages")
 End Function
 
+
 Public Sub InstallLIP()
 On Error GoTo ErrorHandler
     Dim InstallPath As String
@@ -1868,11 +1878,11 @@ On Error GoTo ErrorHandler
     sLog = ""
 
     sLog = sLog + Indent + "Creating a new packages.json file..." + VBA.vbNewLine
-    Call CreateANewPackageFile
-    Dim FSO As New FileSystemObject
+    Call CreateNewPackagesFile
+    Dim fso As New FileSystemObject
     InstallPath = ThisApplication.WebFolder & DefaultInstallPath
-    If Not FSO.FolderExists(InstallPath) Then
-        FSO.CreateFolder InstallPath
+    If Not fso.FolderExists(InstallPath) Then
+        fso.CreateFolder InstallPath
     End If
 
     Call showProgressbar("Installing LIP", "Installing VBA", 50)
@@ -1905,7 +1915,7 @@ On Error GoTo ErrorHandler
     
     Application.Shell sLogfile
     
-    Call AskIfInstallPackageBuilder
+    'Call AskIfInstallPackageBuilder
     
     Application.MousePointer = 0
     
@@ -2316,14 +2326,9 @@ ErrorHandler:
 End Function
 
 Private Sub AskIfInstallPackageBuilder()
-
-If vbYes = Lime.MessageBox("Do you want to install the LIPPackageBuilder? ", vbYesNo + vbDefaultButton2 + vbQuestion) Then
-
-    lip.Install "LIPPackageBuilder"
-
-End If
-
-
+    If vbYes = Lime.MessageBox("Do you want to install the LIPPackageBuilder? ", vbYesNo + vbDefaultButton2 + vbQuestion) Then
+        lip.Install "LIPPackageBuilder"
+    End If
 End Sub
 
 
