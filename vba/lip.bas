@@ -2109,7 +2109,7 @@ On Error GoTo ErrorHandler
     
     Dim i As Integer
     Dim oProc As New LDE.Procedure
-    Set oProc = Database.Procedures("csp_lip_removeTablesAndFields")
+    Set oProc = Database.Procedures("csp_lip_removetablesandfields")
     oProc.Timeout = 299
     
     If Not oProc Is Nothing Then
@@ -2132,7 +2132,7 @@ On Error GoTo ErrorHandler
             Next i
         End If
     Else
-        Call Lime.MessageBox("Couldn't find SQL-procedure 'csp_lip_removeTablesAndFields'. Please make sure this procedure exists in the database and restart LDC.")
+        Call Lime.MessageBox("Couldn't find SQL-procedure 'csp_lip_removetablesandfields'. Please make sure this procedure exists in the database and restart LDC.")
         RollbackFieldsAndTables = False
         Exit Function
     End If
@@ -2262,14 +2262,14 @@ On Error GoTo ErrorHandler
         
     Dim oProc As LDE.Procedure
 
-    Set oProc = Database.Procedures("csp_lip_endInstallation")
+    Set oProc = Database.Procedures("csp_lip_endinstallation")
     oProc.Timeout = 299
 
     If Not oProc Is Nothing Then
         Call oProc.Execute(False)
     Else
         bOK = False
-        Call Lime.MessageBox("Couldn't find SQL-procedure 'csp_lip_endInstallation'. Please make sure this procedure exists in the database and restart the Lime Server Component Service.")
+        Call Lime.MessageBox("Couldn't find SQL-procedure 'csp_lip_endinstallation'. Please make sure this procedure exists in the database and restart the Lime Server Component Service.")
     End If
 
     Set oProc = Nothing

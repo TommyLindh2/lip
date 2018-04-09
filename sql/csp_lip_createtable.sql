@@ -1,8 +1,10 @@
--- Written by: Fredrik Eriksson, Jonny Springare
--- Created: 2015-04-17
 IF EXISTS (SELECT name FROM sysobjects WHERE name = 'csp_lip_createtable' AND UPPER(type) = 'P')
    DROP PROCEDURE [csp_lip_createtable]
 GO
+
+-- Written by: Fredrik Eriksson, Jonny Springare
+-- Created: 2015-04-17
+
 CREATE PROCEDURE [dbo].[csp_lip_createtable]
 	@@tablename NVARCHAR(64)
 	, @@localname_singular NVARCHAR(MAX)
@@ -162,3 +164,11 @@ BEGIN
 		END
 	END
 END
+
+GO
+
+-- Always execute these during installation of procedures to be reached from VBA
+EXEC lsp_setdatabasetimestamp
+EXEC lsp_refreshldc
+
+GO

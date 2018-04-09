@@ -157,3 +157,11 @@ BEGIN
 	END
 	------------------------------
 END
+
+GO
+
+-- Always execute these during installation of procedures to be reached from VBA
+EXEC lsp_setdatabasetimestamp
+EXEC lsp_refreshldc
+
+GO
