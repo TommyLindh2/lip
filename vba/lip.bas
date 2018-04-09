@@ -2052,10 +2052,11 @@ On Error GoTo ErrorHandler
         errorMessage = ""
         warningMessage = ""
 
-        Set oProc = Database.Procedures("csp_lip_addRelations")
-        oProc.Timeout = 299
-
+        Set oProc = Database.Procedures("csp_lip_addrelations")
+        
         If Not oProc Is Nothing Then
+            oProc.Timeout = 299
+            
             sLog = sLog + Indent + "Add relation between: " + relation.Item("table1") + "." + relation.Item("field1") + " and " + relation.Item("table2") + "." + relation.Item("field2") + VBA.vbNewLine
             m_progressDouble = m_progressDouble + (ProgressBarIncrease / nbrRelations)
             Call showProgressbar(m_frmProgress.Caption, "Add relation between: " + relation.Item("table1") + "." + relation.Item("field1") + " and " + relation.Item("table2") + "." + relation.Item("field2"), m_progressDouble)
