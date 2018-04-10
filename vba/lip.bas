@@ -38,11 +38,12 @@ End Sub
 
 'Install package/app. Selects packagestore from packages.json
 Public Sub Install(PackageName As String, Optional upgrade As Boolean, Optional Simulate As Boolean = True)
-On Error GoTo ErrorHandler
+    On Error GoTo ErrorHandler
+    
     Dim Package As Object
     Dim PackageVersion As Double
     Dim downloadURL As String
-    Dim InstallPath As String
+    Dim sInstallPath As String
     Dim bOK As Boolean
     Dim bLocalPackage As Boolean
     Dim tempProgress As Double
@@ -125,9 +126,9 @@ On Error GoTo ErrorHandler
     End If
 
     If Package.Exists("installPath") Then
-        InstallPath = ThisApplication.WebFolder & Package.Item("installPath") & "\"
+        sInstallPath = ThisApplication.WebFolder & Package.Item("installPath") & "\"
     Else
-        InstallPath = ThisApplication.WebFolder & DefaultInstallPath
+        sInstallPath = ThisApplication.WebFolder & DefaultInstallPath
     End If
 
     Set Package = Package
@@ -171,13 +172,13 @@ On Error GoTo ErrorHandler
     'Download and unzip
     sLog = sLog + Indent + "Downloading '" + PackageName + "' files..." + VBA.vbNewLine
     Dim strDownloadError As String
-    strDownloadError = DownloadFile(PackageName, downloadURL, InstallPath)
+    strDownloadError = DownloadFile(PackageName, downloadURL, sInstallPath)
     If strDownloadError = "" Then
-        Call UnZip(PackageName, InstallPath)
+        Call UnZip(PackageName, sInstallPath)
         sLog = sLog + Indent + "Download complete!" + VBA.vbNewLine
         
                
-        If InstallPackageComponents(PackageName, PackageVersion, Package, InstallPath, Simulate) = False Then
+        If InstallPackageComponents(PackageName, PackageVersion, Package, sInstallPath, Simulate) = False Then
             bOK = False
         End If
     Else
@@ -203,12 +204,14 @@ On Error GoTo ErrorHandler
     Print #1, sLog
     Close #1
     
+    ' Finish the progress bar and hide it
+    If Not m_frmProgress Is Nothing Then
+        Call updateProgressBar(VBA.IIf(Simulate, "Simulation", "Installation") & " done!", 99)
+        m_frmProgress.Hide
+        Set m_frmProgress = Nothing
+    End If
+    
     If Simulate Then
-        If Not m_frmProgress Is Nothing Then
-            Call updateProgressBar("Simulation done!", 99)
-            m_frmProgress.Hide
-            Set m_frmProgress = Nothing
-        End If
         Call ThisApplication.Shell(sLogfile)
         If bOK Then
             If vbYes = Lime.MessageBox("Simulation of installation process completed for package " & PackageName & ". Please check the result in the recently opened logfile." & VBA.vbNewLine & VBA.vbNewLine & "Do you wish to proceed with the installation?", vbInformation + vbYesNo + vbDefaultButton2) Then
@@ -218,26 +221,29 @@ On Error GoTo ErrorHandler
             Call Lime.MessageBox("Simulation of installation process completed for package " & PackageName & ". Errors occurred, please check the result in the recently opened logfile and take necessary actions before you try again.")
         End If
     Else
-        If Not m_frmProgress Is Nothing Then
-            Call updateProgressBar("Installation done!", 99)
-            m_frmProgress.Hide
-            Set m_frmProgress = Nothing
+        ' Copy log file to target folder
+        Call VBA.FileCopy(sLogfile, LCO.MakeFileName(LCO.MakeFileName(sInstallPath, PackageName), "installationlog_" & GetCleanTimestamp() & ".txt"))
+        
+        ' Prompt success message (and possibly reminder of manual steps left to do)
+        Dim sMsg As String
+        sMsg = "Installation process completed for package " & PackageName & "."
+        
+        If VBA.Dir(LCO.MakeFileName(LCO.MakeFileName(sInstallPath, PackageName), "lisa"), VBA.vbDirectory) <> "" Then
+            sMsg = sMsg & VBA.vbCrLf & VBA.vbCrLf & "Please note that there are things that must be manually installed in LISA!"
         End If
-        ' ##TODO: Redo this according to the InstallFromZip flow
-        If vbYes = Lime.MessageBox("Installation process completed for package " & PackageName & ". Remember to publish actionpads if needed. Do you want to open the logfile for the installation?", vbInformation + vbYesNo + vbDefaultButton1) Then
-            ThisApplication.Shell (sLogfile)
-        Else
-            Debug.Print ("Logfile is available here: " & sLogfile)
+        
+        If VBA.Dir(LCO.MakeFileName(LCO.MakeFileName(sInstallPath, PackageName), "sql"), VBA.vbDirectory) <> "" Then
+            sMsg = sMsg & VBA.vbCrLf & VBA.vbCrLf & "Please note that there is SQL code that must be manually installed!"
         End If
+        
+        Call Lime.MessageBox(sMsg, VBA.vbInformation + VBA.vbOKOnly)
+        
+        ' Open folder containing log file and files for manual installation
+        Call Application.Shell(sInstallPath + PackageName)
     End If
     
-    Set m_frmProgress = Nothing
-    
     sLog = ""
-    
     Application.MousePointer = 0
-
-    Call Application.Shell(InstallPath + PackageName)
     
     Exit Sub
 ErrorHandler:
