@@ -415,14 +415,30 @@ On Error GoTo ErrorHandler
                         Call Lime.MessageBox("Simulation of installation process completed for package " & PackageName & ". Errors occurred, please check the result in the recently opened logfile and take necessary actions before you try again.")
                     End If
                 Else
+                    ' Update progress bar
                     Call showProgressbar("Installing " & PackageName, "Installation done!", 99)
                     m_frmProgress.Hide
                     Set m_frmProgress = Nothing
-                    If vbYes = Lime.MessageBox("Installation process completed for package " & PackageName & ". Do you want to open the logfile for the installation?", vbInformation + vbYesNo + vbDefaultButton1) Then
-                        Call ThisApplication.Shell(sLogfile)
-                    Else
-                        Debug.Print "Logfile is available here: " & sLogfile
+                    
+                    ' Copy log file to target folder
+                    Call VBA.FileCopy(sLogfile, LCO.MakeFileName(LCO.MakeFileName(sInstallPath, PackageName), "installationlog_" & GetCleanTimestamp() & ".txt"))
+                    
+                    ' Prompt success message (and possibly reminder of manual steps left to do)
+                    Dim sMsg As String
+                    sMsg = "Installation process completed for package " & PackageName & "."
+                    
+                    If VBA.Dir(LCO.MakeFileName(LCO.MakeFileName(sInstallPath, PackageName), "lisa"), VBA.vbDirectory) <> "" Then
+                        sMsg = sMsg & VBA.vbCrLf & VBA.vbCrLf & "Please note that there are things that must be manually installed in LISA!"
                     End If
+                    
+                    If VBA.Dir(LCO.MakeFileName(LCO.MakeFileName(sInstallPath, PackageName), "sql"), VBA.vbDirectory) <> "" Then
+                        sMsg = sMsg & VBA.vbCrLf & VBA.vbCrLf & "Please note that there is SQL code that must be manually installed!"
+                    End If
+                    
+                    Call Lime.MessageBox(sMsg, VBA.vbInformation + VBA.vbOKOnly)
+                    
+                    ' Open folder containing log file and files for manual installation
+                    Call Application.Shell(sInstallPath + PackageName)
                 End If
                 
             Else
@@ -440,8 +456,6 @@ On Error GoTo ErrorHandler
     sLog = ""
     Application.MousePointer = 0
     
-    Call Application.Shell(sInstallPath + PackageName)
-
     Exit Sub
 ErrorHandler:
     If Not m_frmProgress Is Nothing Then
