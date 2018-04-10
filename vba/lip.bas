@@ -2269,7 +2269,7 @@ On Error GoTo ErrorHandler
         Call oProc.Execute(False)
     Else
         bOK = False
-        Call Lime.MessageBox("Couldn't find SQL-procedure 'csp_lip_endinstallation'. Please make sure this procedure exists in the database and restart the Lime Server Component Service.")
+        Call Lime.MessageBox(GetErrorMessageSQLProcedureNotFound("csp_lip_endinstallation"))
     End If
 
     Set oProc = Nothing
