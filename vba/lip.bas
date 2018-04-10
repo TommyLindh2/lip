@@ -351,7 +351,7 @@ On Error GoTo ErrorHandler
                     sJson = sJson & sLine
                 Loop
                 Close #1
-                Set Package = JSON.parse(sJson)
+                Set Package = json.parse(sJson)
                 
                 ' ##TODO: Vad är installPath för inställning?
                 If Package.Exists("installPath") Then
@@ -923,7 +923,7 @@ End Function
 Private Function ParseJson(sJson As String) As Object
 On Error GoTo ErrorHandler
     Dim oJSON As Object
-    Set oJSON = JSON.parse(sJson)
+    Set oJSON = json.parse(sJson)
     Set ParseJson = oJSON
 Exit Function
 ErrorHandler:
@@ -1079,7 +1079,7 @@ End Function
 '
 '        Else
 '            bOk = False
-'            Call Lime.MessageBox("Couldn't find SQL-procedure 'csp_lip_installSQL'. Please make sure this procedure exists in the database and restart LDC.")
+'            Call Lime.MessageBox(GetErrorMessageSQLProcedureNotFound("csp_lip_installSQL"))
 '        End If
 '
 '        CreateSQLProcedure = bOk
@@ -1213,7 +1213,7 @@ On Error GoTo ErrorHandler
 
         Else
             bOK = False
-            Call Lime.MessageBox("Couldn't find SQL-procedure 'csp_lip_createtable'. Please make sure this procedure exists in the database and restart LDC.")
+            Call Lime.MessageBox(GetErrorMessageSQLProcedureNotFound("csp_lip_createtable"))
         End If
 
     Next table
@@ -1415,12 +1415,12 @@ On Error GoTo ErrorHandler
                 End If
             Else
                 bOK = False
-                Call Lime.MessageBox("Couldn't find SQL-procedure 'csp_lip_setfieldattributes'. Please make sure this procedure exists in the database, run lsp_setdatabasetimestamp and restart LDC.")
+                Call Lime.MessageBox(GetErrorMessageSQLProcedureNotFound("csp_lip_setfieldattributes"))
             End If
         End If
     Else
         bOK = False
-        Call Lime.MessageBox("Couldn't find SQL-procedure 'csp_lip_createfield'. Please make sure this procedure exists in the database, run lsp_setdatabasetimestamp and restart LDC.")
+        Call Lime.MessageBox(GetErrorMessageSQLProcedureNotFound("csp_lip_createfield"))
     End If
     Set oProc = Nothing
     AddField = bOK
@@ -1492,7 +1492,7 @@ On Error GoTo ErrorHandler
 
         Else
             bOK = False
-            Call Lime.MessageBox("Couldn't find SQL-procedure 'csp_lip_settableattributes'. Please make sure this procedure exists in the database and restart LDC.")
+            Call Lime.MessageBox(GetErrorMessageSQLProcedureNotFound("csp_lip_settableattributes"))
         End If
     End If
 
@@ -1696,7 +1696,7 @@ On Error GoTo ErrorHandler
     If Not Simulate Then
         Set fs = CreateObject("Scripting.FileSystemObject")
         Set a = fs.CreateTextFile(WebFolder + "packages.json", True)
-        For Each Line In Split(PrettyPrintJSON(JSON.toString(oJSON)), vbCrLf)
+        For Each Line In Split(PrettyPrintJSON(json.toString(oJSON)), vbCrLf)
             Line = VBA.Replace(Line, "\/", "/") 'Replace \/ with only / since JSON escapes frontslash with a backslash which causes problems with packagestores URLs
             a.WriteLine Line
         Next Line
@@ -1713,17 +1713,17 @@ ErrorHandler:
     DecreaseIndent
 End Function
 
-Private Function PrettyPrintJSON(JSON As String) As String
+Private Function PrettyPrintJSON(json As String) As String
 On Error GoTo ErrorHandler
     Dim i As Integer
     Dim Indent As String
     Dim PrettyJSON As String
     Dim InsideQuotation As Boolean
 
-    For i = 1 To Len(JSON)
-        Select Case VBA.Mid(JSON, i, 1)
+    For i = 1 To Len(json)
+        Select Case VBA.Mid(json, i, 1)
             Case """"
-                PrettyJSON = PrettyJSON + VBA.Mid(JSON, i, 1)
+                PrettyJSON = PrettyJSON + VBA.Mid(json, i, 1)
                 If InsideQuotation = False Then
                     InsideQuotation = True
                 Else
@@ -1734,23 +1734,23 @@ On Error GoTo ErrorHandler
                     Indent = Indent + "    " ' Add to indentation
                     PrettyJSON = PrettyJSON + "{" + vbCrLf + Indent
                 Else
-                    PrettyJSON = PrettyJSON + VBA.Mid(JSON, i, 1)
+                    PrettyJSON = PrettyJSON + VBA.Mid(json, i, 1)
                 End If
             Case "}", "["
                 If InsideQuotation = False Then
                     Indent = VBA.Left(Indent, Len(Indent) - 4) 'Remove indentation
                     PrettyJSON = PrettyJSON + vbCrLf + Indent + "}"
                 Else
-                    PrettyJSON = PrettyJSON + VBA.Mid(JSON, i, 1)
+                    PrettyJSON = PrettyJSON + VBA.Mid(json, i, 1)
                 End If
             Case ","
                 If InsideQuotation = False Then
                     PrettyJSON = PrettyJSON + "," + vbCrLf + Indent
                 Else
-                    PrettyJSON = PrettyJSON + VBA.Mid(JSON, i, 1)
+                    PrettyJSON = PrettyJSON + VBA.Mid(json, i, 1)
                 End If
             Case Else
-                PrettyJSON = PrettyJSON + VBA.Mid(JSON, i, 1)
+                PrettyJSON = PrettyJSON + VBA.Mid(json, i, 1)
         End Select
     Next i
     PrettyPrintJSON = PrettyJSON
@@ -1773,7 +1773,7 @@ On Error GoTo ErrorHandler
         Exit Function
     End If
 
-    Set oJSON = JSON.parse(sJson)
+    Set oJSON = json.parse(sJson)
     Set ReadPackageFile = oJSON
 
     Exit Function
@@ -1849,7 +1849,7 @@ On Error GoTo ErrorHandler
     Set oPackageFile = ReadPackageFile()
 
     If Not oPackageFile Is Nothing Then
-        GetAllInstalledPackages = JSON.toString(oPackageFile)
+        GetAllInstalledPackages = json.toString(oPackageFile)
     Else
         GetAllInstalledPackages = "{}"
         sLog = sLog + Indent + "Couldn't find dependencies in packages.json" + VBA.vbNewLine
@@ -2088,7 +2088,7 @@ On Error GoTo ErrorHandler
             DecreaseIndent
         Else
             bOK = False
-            Call Lime.MessageBox("Could not find SQL stored procedure 'csp_lip_addrelations'. Please make sure this procedure exists in the database and restart LDC.")
+            Call Lime.MessageBox(GetErrorMessageSQLProcedureNotFound("csp_lip_addrelations"))
         End If
     Next relation
     
@@ -2132,7 +2132,7 @@ On Error GoTo ErrorHandler
             Next i
         End If
     Else
-        Call Lime.MessageBox("Couldn't find SQL-procedure 'csp_lip_removetablesandfields'. Please make sure this procedure exists in the database and restart LDC.")
+        Call Lime.MessageBox(GetErrorMessageSQLProcedureNotFound("csp_lip_removetablesandfields"))
         RollbackFieldsAndTables = False
         Exit Function
     End If
@@ -2165,7 +2165,7 @@ On Error GoTo ErrorHandler
     If Package Is Nothing Then
         Exit Sub
     End If
-   
+    
     PackageVersion = findNewestVersion(Package.Item("versions"))
     If PackageVersion > CDbl(VBA.Replace(oPackageFile.Item("lipversion"), ".", ",")) Then
         Debug.Print Indent + "Newer version of lip found"
@@ -2484,3 +2484,18 @@ Private Function GetCleanTimestamp() As String
 ErrorHandler:
     Call UI.ShowError("lip.GetCleanTimestamp")
 End Function
+
+
+' ##SUMMARY Returns the error message to prompt to a user when a SQL procedure was not found.
+Private Function GetErrorMessageSQLProcedureNotFound(sProcedureName As String) As String
+    On Error GoTo ErrorHandler
+
+    GetErrorMessageSQLProcedureNotFound = Application.FormatString("Could not find SQL procedure '%1'." & VBA.vbCrLf & VBA.vbCrLf & "Please make sure the procedure exists in the database, run lsp_setdatabasetimestamp and lsp_refreshldc and restart the LDC.", sProcedureName)
+
+    Exit Function
+ErrorHandler:
+    GetErrorMessageSQLProcedureNotFound = ""
+    Call UI.ShowError("lip.GetErrorMessageSQLProcedureNotFound")
+End Function
+
+
