@@ -1936,10 +1936,7 @@ On Error GoTo ErrorHandler
     m_frmProgress.Hide
     Set m_frmProgress = Nothing
     
-    Application.Shell sLogfile
-    
-    '##TODO
-    'Call AskIfInstallPackageBuilder
+    Call Application.Shell(sLogfile)
     
     Application.MousePointer = 0
     
@@ -2346,12 +2343,6 @@ ErrorHandler:
     Call UI.ShowError("lip.GetInstalledLIPVersion")
 
 End Function
-
-Private Sub AskIfInstallPackageBuilder()
-    If vbYes = Lime.MessageBox("Do you want to install the LIPPackageBuilder? ", vbYesNo + vbDefaultButton2 + vbQuestion) Then
-        lip.Install "LIPPackageBuilder"
-    End If
-End Sub
 
 
 ' ##SUMMARY Shows a file dialog where the user can select a zip file.
