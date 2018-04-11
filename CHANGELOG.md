@@ -1,9 +1,25 @@
 # Changelog for LIP
 
+## v1.3.0
+**Released:** 2018-04-xx
+
+**Authors:** Fredrik Eriksson, Lars Jensen, Jonny Springare
+
+**Comments:** 
+
+* Now supports the structure for add-ons.
+* Possible to install Actionpads.
+* Progress bar title now states "Simulating" when simulations are run.
+* User is now notified if there are things that must be installed manually after a lip.InstallFromZip has been run (SQL or LISA things).
+* Installing LIP no longer asks if you want to install the Package Builder (since this wasn't done fully anyway and LIP maybe wasn't ready to install other packages without a restart in some cases).
+* Unexpected local date formats could result in an error with the log file now solved.
+* Improved README.
+
+
 ## v1.2.0
 **Released:** 2017-08-04
 
-**Authors:** Lars Jensen, Jonny Springare, Rasmus Alestig Thunborg, Lundalogik AB
+**Authors:** Lars Jensen, Jonny Springare, Rasmus Alestig Thunborg
 
 **Comments:** 
 
@@ -24,7 +40,7 @@
 ## v1.1.0
 **Released:** 2017-05-03
 
-**Authors:** Lars Jensen, Jonny Springare, Lundalogik AB
+**Authors:** Lars Jensen, Jonny Springare
 
 **Comments:**
 
@@ -46,6 +62,6 @@
 ## v1.0.0
 **Released:** 2017-01-18
 
-**Authors:** Lars Jensen, Jonny Springare, Pawel Demczuk, Fredrik Eriksson, Filip Arenbo, Lundalogik AB
+**Authors:** Lars Jensen, Jonny Springare, Pawel Demczuk, Fredrik Eriksson, Filip Arenbo
 
 **Comments:** This is the first official release of app and package installer for Lime CRM.
