@@ -372,7 +372,7 @@ On Error GoTo ErrorHandler
                     sJson = sJson & sLine
                 Loop
                 Close #1
-                Set Package = json.parse(sJson)
+                Set Package = JSON.parse(sJson)
                 
                 ' ##TODO: Vad är installPath för inställning?
                 If Package.Exists("installPath") Then
@@ -955,7 +955,7 @@ End Function
 Private Function ParseJson(sJson As String) As Object
 On Error GoTo ErrorHandler
     Dim oJSON As Object
-    Set oJSON = json.parse(sJson)
+    Set oJSON = JSON.parse(sJson)
     Set ParseJson = oJSON
 Exit Function
 ErrorHandler:
@@ -1134,7 +1134,7 @@ On Error GoTo ErrorHandler
 
     Dim localname_singular As String
     Dim localname_plural As String
-    Dim errorMessage As String
+    Dim ErrorMessage As String
     Dim warningMessage As String
     
     Dim nbrTables As Integer
@@ -1153,7 +1153,7 @@ On Error GoTo ErrorHandler
     For Each table In oJSON
         localname_singular = ""
         localname_plural = ""
-        errorMessage = ""
+        ErrorMessage = ""
         idtable = -1
         
         Set oProc = Database.Procedures("csp_lip_createtable")
@@ -1189,7 +1189,7 @@ On Error GoTo ErrorHandler
 
             Call oProc.Execute(False)
 
-            errorMessage = oProc.Parameters("@@errorMessage").OutputValue
+            ErrorMessage = oProc.Parameters("@@errorMessage").OutputValue
             warningMessage = oProc.Parameters("@@warningMessage").OutputValue
 
             idtable = oProc.Parameters("@@idtable").OutputValue
@@ -1206,9 +1206,9 @@ On Error GoTo ErrorHandler
             End If
             
             'If errormessage is set, something went wrong
-            If errorMessage <> "" Then
+            If ErrorMessage <> "" Then
                 IncreaseIndent
-                sLog = sLog + Indent + (errorMessage) + VBA.vbNewLine
+                sLog = sLog + Indent + (ErrorMessage) + VBA.vbNewLine
                 bOK = False
                 DecreaseIndent
             Else
@@ -1272,7 +1272,7 @@ Private Function AddField(tableName As String, field As Object, ByRef sCreatedFi
 On Error GoTo ErrorHandler
     Dim bOK As Boolean
     Dim oProc As New LDE.Procedure
-    Dim errorMessage As String
+    Dim ErrorMessage As String
     Dim warningMessage As String
     Dim fieldLocalnames As String
     Dim separatorLocalnames As String
@@ -1288,7 +1288,7 @@ On Error GoTo ErrorHandler
     Application.MousePointer = 11
     
     bOK = True
-    errorMessage = ""
+    ErrorMessage = ""
     warningMessage = ""
     fieldLocalnames = ""
     separatorLocalnames = ""
@@ -1311,7 +1311,7 @@ On Error GoTo ErrorHandler
         oProc.Parameters("@@isnullable").InputValue = field.Item("attributes").Item("isnullable")
         
         Call oProc.Execute(False)
-        errorMessage = oProc.Parameters("@@errorMessage").OutputValue
+        ErrorMessage = oProc.Parameters("@@errorMessage").OutputValue
         warningMessage = oProc.Parameters("@@warningMessage").OutputValue
         
         idfield = oProc.Parameters("@@idfield").OutputValue
@@ -1324,9 +1324,9 @@ On Error GoTo ErrorHandler
         End If
         
         'If errormessage is set, something went wrong
-        If errorMessage <> "" Then
+        If ErrorMessage <> "" Then
             IncreaseIndent
-            sLog = sLog + Indent + (errorMessage) + VBA.vbNewLine
+            sLog = sLog + Indent + (ErrorMessage) + VBA.vbNewLine
             DecreaseIndent
             bOK = False
         End If
@@ -1340,7 +1340,7 @@ On Error GoTo ErrorHandler
             sLog = sLog + Indent + ("Field """ & tableName & "." & field.Item("name") & """ installed.") + VBA.vbNewLine
             sLog = sLog + Indent + ("Adding attributes for field: " & tableName & "." & field.Item("name")) + VBA.vbNewLine
             
-            errorMessage = ""
+            ErrorMessage = ""
             warningMessage = ""
             
             Set oProc = Database.Procedures("csp_lip_setfieldattributes")
@@ -1426,7 +1426,7 @@ On Error GoTo ErrorHandler
                 
                 Call oProc.Execute(False)
                 
-                errorMessage = oProc.Parameters("@@errorMessage").OutputValue
+                ErrorMessage = oProc.Parameters("@@errorMessage").OutputValue
                 warningMessage = oProc.Parameters("@@warningMessage").OutputValue
                 
                 'Log warnings
@@ -1437,9 +1437,9 @@ On Error GoTo ErrorHandler
                 End If
                 
                 'If errormessage is set, something went wrong
-                If errorMessage <> "" Then
+                If ErrorMessage <> "" Then
                     IncreaseIndent
-                    sLog = sLog + Indent + (errorMessage) + VBA.vbNewLine
+                    sLog = sLog + Indent + (ErrorMessage) + VBA.vbNewLine
                     DecreaseIndent
                     bOK = False
                 Else
@@ -1473,13 +1473,13 @@ On Error GoTo ErrorHandler
     Dim bOK As Boolean
     Dim oProcAttributes As LDE.Procedure
     Dim oItem As Variant
-    Dim errorMessage As String
+    Dim ErrorMessage As String
     Dim warningMessage As String
     
     Application.MousePointer = 11
     
     bOK = True
-    errorMessage = ""
+    ErrorMessage = ""
     warningMessage = ""
 
     If table.Exists("attributes") Then
@@ -1507,7 +1507,7 @@ On Error GoTo ErrorHandler
 
             Call oProcAttributes.Execute(False)
 
-            errorMessage = oProcAttributes.Parameters("@@errorMessage").OutputValue
+            ErrorMessage = oProcAttributes.Parameters("@@errorMessage").OutputValue
             warningMessage = oProcAttributes.Parameters("@@warningMessage").OutputValue
             
             If warningMessage <> "" Then
@@ -1515,8 +1515,8 @@ On Error GoTo ErrorHandler
             End If
 
             'If errormessage is set, something went wrong
-            If errorMessage <> "" Then
-                sLog = sLog + Indent + (errorMessage) + VBA.vbNewLine
+            If ErrorMessage <> "" Then
+                sLog = sLog + Indent + (ErrorMessage) + VBA.vbNewLine
                 bOK = False
             Else
                 sLog = sLog + Indent + ("Attributes for table """ & table.Item("name") & """ set.") + VBA.vbNewLine
@@ -1614,8 +1614,6 @@ Private Function InstallVBAComponents(PackageName As String, VBAModules As Objec
     For Each VBAModule In VBAModules
         If Not addModule(PackageName, VBAModule.Item("name"), VBAModule.Item("relPath"), InstallPath, Simulate) Then
             bOK = False
-        Else
-            sLog = sLog + Indent + "Added " + VBAModule.Item("name") + VBA.vbNewLine
         End If
     Next VBAModule
     
@@ -1678,11 +1676,14 @@ Private Function addModule(PackageName As String, ModuleName As String, RelPath 
             End If
         Else
             sLog = sLog + Indent + "Module """ & ModuleName & """ can't be added. File does not exists." + VBA.vbNewLine
+            bOK = False
+            Exit Function
         End If
         
     Else
-        bOK = False
         sLog = sLog + (Indent + "Detected invalid package- or modulename while installing """ + RelPath + """") + VBA.vbNewLine
+        bOK = False
+        Exit Function
     End If
     addModule = bOK
     
@@ -1728,7 +1729,7 @@ On Error GoTo ErrorHandler
     If Not Simulate Then
         Set fs = CreateObject("Scripting.FileSystemObject")
         Set a = fs.CreateTextFile(WebFolder + "packages.json", True)
-        For Each Line In Split(PrettyPrintJSON(json.toString(oJSON)), vbCrLf)
+        For Each Line In Split(PrettyPrintJSON(JSON.toString(oJSON)), vbCrLf)
             Line = VBA.Replace(Line, "\/", "/") 'Replace \/ with only / since JSON escapes frontslash with a backslash which causes problems with packagestores URLs
             a.WriteLine Line
         Next Line
@@ -1745,17 +1746,17 @@ ErrorHandler:
     DecreaseIndent
 End Function
 
-Private Function PrettyPrintJSON(json As String) As String
+Private Function PrettyPrintJSON(JSON As String) As String
 On Error GoTo ErrorHandler
     Dim i As Integer
     Dim Indent As String
     Dim PrettyJSON As String
     Dim InsideQuotation As Boolean
 
-    For i = 1 To Len(json)
-        Select Case VBA.Mid(json, i, 1)
+    For i = 1 To Len(JSON)
+        Select Case VBA.Mid(JSON, i, 1)
             Case """"
-                PrettyJSON = PrettyJSON + VBA.Mid(json, i, 1)
+                PrettyJSON = PrettyJSON + VBA.Mid(JSON, i, 1)
                 If InsideQuotation = False Then
                     InsideQuotation = True
                 Else
@@ -1766,23 +1767,23 @@ On Error GoTo ErrorHandler
                     Indent = Indent + "    " ' Add to indentation
                     PrettyJSON = PrettyJSON + "{" + vbCrLf + Indent
                 Else
-                    PrettyJSON = PrettyJSON + VBA.Mid(json, i, 1)
+                    PrettyJSON = PrettyJSON + VBA.Mid(JSON, i, 1)
                 End If
             Case "}", "["
                 If InsideQuotation = False Then
                     Indent = VBA.Left(Indent, Len(Indent) - 4) 'Remove indentation
                     PrettyJSON = PrettyJSON + vbCrLf + Indent + "}"
                 Else
-                    PrettyJSON = PrettyJSON + VBA.Mid(json, i, 1)
+                    PrettyJSON = PrettyJSON + VBA.Mid(JSON, i, 1)
                 End If
             Case ","
                 If InsideQuotation = False Then
                     PrettyJSON = PrettyJSON + "," + vbCrLf + Indent
                 Else
-                    PrettyJSON = PrettyJSON + VBA.Mid(json, i, 1)
+                    PrettyJSON = PrettyJSON + VBA.Mid(JSON, i, 1)
                 End If
             Case Else
-                PrettyJSON = PrettyJSON + VBA.Mid(json, i, 1)
+                PrettyJSON = PrettyJSON + VBA.Mid(JSON, i, 1)
         End Select
     Next i
     PrettyPrintJSON = PrettyJSON
@@ -1805,7 +1806,7 @@ On Error GoTo ErrorHandler
         Exit Function
     End If
 
-    Set oJSON = json.parse(sJson)
+    Set oJSON = JSON.parse(sJson)
     Set ReadPackageFile = oJSON
 
     Exit Function
@@ -1881,7 +1882,7 @@ On Error GoTo ErrorHandler
     Set oPackageFile = ReadPackageFile()
 
     If Not oPackageFile Is Nothing Then
-        GetAllInstalledPackages = json.toString(oPackageFile)
+        GetAllInstalledPackages = JSON.toString(oPackageFile)
     Else
         GetAllInstalledPackages = "{}"
         sLog = sLog + Indent + "Couldn't find dependencies in packages.json" + VBA.vbNewLine
@@ -2063,7 +2064,7 @@ On Error GoTo ErrorHandler
     Dim relation As Object
     Dim oProc As LDE.Procedure
 
-    Dim errorMessage As String
+    Dim ErrorMessage As String
     Dim warningMessage As String
     
     Dim nbrRelations As Integer
@@ -2076,7 +2077,7 @@ On Error GoTo ErrorHandler
     
     For Each relation In oJSON
         nbrRelations = oJSON.Count
-        errorMessage = ""
+        ErrorMessage = ""
         warningMessage = ""
 
         Set oProc = Database.Procedures("csp_lip_addrelations")
@@ -2095,7 +2096,7 @@ On Error GoTo ErrorHandler
             oProc.Parameters("@@createdfields").InputValue = sCreatedFields
 
             Call oProc.Execute(False)
-            errorMessage = oProc.Parameters("@@errorMessage").OutputValue
+            ErrorMessage = oProc.Parameters("@@errorMessage").OutputValue
             warningMessage = oProc.Parameters("@@warningMessage").OutputValue
             
             IncreaseIndent
@@ -2104,12 +2105,12 @@ On Error GoTo ErrorHandler
             End If
             
             'If errormessage is set, something went wrong
-            If errorMessage <> "" Then
-                sLog = sLog + Indent + errorMessage + VBA.vbNewLine
+            If ErrorMessage <> "" Then
+                sLog = sLog + Indent + ErrorMessage + VBA.vbNewLine
                 bOK = False
             End If
             
-            If errorMessage = "" And warningMessage = "" Then
+            If ErrorMessage = "" And warningMessage = "" Then
                 sLog = sLog + Indent + "Relation between: " + relation.Item("table1") + "." + relation.Item("field1") + " and " + relation.Item("table2") + "." + relation.Item("field2") + " created." + VBA.vbNewLine
             End If
             DecreaseIndent
