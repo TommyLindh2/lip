@@ -1681,7 +1681,7 @@ Private Function addModule(PackageName As String, ModuleName As String, RelPath 
         End If
         
     Else
-        sLog = sLog + (Indent + "Detected invalid package- or modulename while installing """ + RelPath + """") + VBA.vbNewLine
+        sLog = sLog + (Indent + "Detected invalid package or module name while installing """ + RelPath + """") + VBA.vbNewLine
         bOK = False
         Exit Function
     End If
