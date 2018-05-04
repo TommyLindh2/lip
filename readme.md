@@ -18,7 +18,7 @@ Searches for the package on the stores configured in your `packages.json` file i
 `lip.InstallFromZip`
 *Currently the recommended way of using LIP.*
 
-Install a deploy package or add-on from a zip file. It will display a file dialog where you can point out the zip file you wish to install.
+Installs a deploy package or add-on from a zip file. It will open a file dialog where you can point out the zip file you wish to install.
 
 `lip.InstallFromPackageFile`
 *Currently not in use!*
