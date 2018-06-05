@@ -8,6 +8,7 @@
 **Comments:** 
 
 * New version of the Progress bar VBA form that will solve issue in some environments.
+* lip.json is now used instead of package.json or app.json.
 
 
 ## v1.3.0
