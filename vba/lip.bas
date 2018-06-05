@@ -349,12 +349,16 @@ On Error GoTo ErrorHandler
                 Dim sJson As String
                 Dim sLine As String
         
-                'Look for lip.json
-                If VBA.Dir(sInstallPath & PackageName & "\" & "lip.json") <> "" Then
-                    Open sInstallPath & PackageName & "\" & "lip.json" For Input As #1
+                ' Look for lip.json
+                Dim sLipJsonPath As String
+                sLipJsonPath = sInstallPath & PackageName & "\" & "lip.json"
+                If VBA.Dir(sLipJsonPath) <> "" Then
+                    Open sLipJsonPath For Input As #1
                 Else
-                    sLog = sLog + Indent + "Installation failed: couldn't find any lip.json in the zip-file" + VBA.vbNewLine
-                    Call Application.MessageBox("ERROR: Installation failed: couldn't find any lip.json in the zip-file")
+                    Dim sErrorMessage As String
+                    sErrorMessage = "Installation failed: could not find any lip.json in the zip-file"
+                    sLog = sLog + Indent + sErrorMessage + VBA.vbNewLine
+                    Call Application.MessageBox("ERROR: " + sErrorMessage)
                     Application.Shell SaveLogFile(PackageName)
                     If Not m_frmProgress Is Nothing Then
                         m_frmProgress.Hide
@@ -371,7 +375,7 @@ On Error GoTo ErrorHandler
                 Close #1
                 Set Package = JSON.parse(sJson)
                 
-                ' ##TODO: Vad ï¿½r installPath fï¿½r instï¿½llning?
+                ' ##TODO: Vad är installPath för inställning?
                 If Package.Exists("installPath") Then
                     sInstallPath = ThisApplication.WebFolder & Package.Item("installPath") & "\"
                 End If
