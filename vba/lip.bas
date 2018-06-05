@@ -49,6 +49,11 @@ Public Sub Install(PackageName As String, Optional upgrade As Boolean, Optional 
     Dim tempProgress As Double
     Dim tempCaption As String
     
+    If Not VerifyLIPInstallation Then
+        Call Lime.MessageBox("Verification of LIP failed, installation aborted.", vbCritical)
+        Exit Sub
+    End If
+    
     If m_frmProgress Is Nothing Then
         Set m_frmProgress = New FormProgress
         If Simulate Then
@@ -275,6 +280,11 @@ On Error GoTo ErrorHandler
         If sZipPath = "" Then
             Exit Sub
         End If
+    End If
+    
+    If Not VerifyLIPInstallation Then
+        Call Lime.MessageBox("Verification of LIP failed, installation aborted.", vbCritical)
+        Exit Sub
     End If
     
     'Check if valid path
@@ -2518,7 +2528,63 @@ ErrorHandler:
     Call UI.ShowError("lip.GetErrorMessageSQLProcedureNotFound")
 End Function
 
+Private Function VerifyLIPInstallation() As Boolean
+On Error GoTo ErrorHandler
 
+    Dim sVerifySQL As String
+    
+    VerifyLIPInstallation = True
+    
+    sVerifySQL = VerifySQL
+    
+    If sVerifySQL <> "" Then
+        Call Lime.MessageBox("The following SQL procedures were not found:" & vbNewLine & vbNewLine & sVerifySQL & vbNewLine & "Please make sure they are installed and accessible.", vbCritical)
+        VerifyLIPInstallation = False
+    End If
+    
+Exit Function
+ErrorHandler:
+    Call UI.ShowError("lip.VerifyLIPInstallation")
+End Function
 
+Private Function VerifySQL() As String
+On Error GoTo ErrorHandler
 
+    Dim sProcName As Variant
+    Dim sProcNames As Variant
+    Dim sNotFound As String
+    Dim oProc As LDE.Procedure
+    Dim bExists As Boolean
+    
+    sProcNames = Array("csp_lip_addRelations", _
+        "csp_lip_settableattributes", _
+        "csp_lip_setfieldattributes", _
+        "csp_lip_removeTablesAndFields", _
+        "csp_lip_endInstallation", _
+        "csp_lip_createtable", _
+        "csp_lip_createfield")
+    
+    For Each sProcName In sProcNames
+    
+        bExists = False
+        
+        For Each oProc In Application.Database.Procedures
+            If oProc.Name = sProcName Then
+                bExists = True
+                Exit For
+            End If
+        Next oProc
+        
+        If Not bExists Then
+            sNotFound = sNotFound + sProcName + vbNewLine
+        End If
+        
+    Next sProcName
+    
+    VerifySQL = sNotFound
 
+Exit Function
+
+ErrorHandler:
+    Call UI.ShowError("lip.VerifySQL")
+End Function

@@ -10,6 +10,8 @@
 * New version of the Progress bar VBA form that will solve issue in some environments.
 * lip.json is now used instead of package.json or app.json.
 
+* Verification of SQL procedures is done before installing a package
+
 
 ## v1.3.0
 **Released:** 2018-04-xx
