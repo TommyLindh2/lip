@@ -371,7 +371,7 @@ On Error GoTo ErrorHandler
                 Close #1
                 Set Package = JSON.parse(sJson)
                 
-                ' ##TODO: Vad är installPath för inställning?
+                ' ##TODO: Vad Ã¤r installPath fÃ¶r instÃ¤llning?
                 If Package.Exists("installPath") Then
                     sInstallPath = ThisApplication.WebFolder & Package.Item("installPath") & "\"
                 End If
@@ -2311,8 +2311,8 @@ Public Sub updateProgressBar(sMessage As String, dblProgress As Double)
     On Error GoTo ErrorHandler
     
     If Not m_frmProgress Is Nothing Then
-        m_frmProgress.Title = sMessage
-        m_frmProgress.Progress = dblProgress
+        m_frmProgress.Title.Caption = sMessage
+        m_frmProgress.Progress.Width = m_frmProgress.Width / (100 / (dblProgress + 1))
     End If
     
     Exit Sub
@@ -2321,7 +2321,7 @@ ErrorHandler:
         m_frmProgress.Hide
         Set m_frmProgress = Nothing
     End If
-    Call UI.ShowError("lip.showProgressBar")
+    Call UI.ShowError("lip.updateProgressBar")
 End Sub
 
 'Helper function to get LIP version from packages.json.
