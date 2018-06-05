@@ -7,7 +7,7 @@ LIP is inspired by Pythons PIP and Nodes NPM.
 ## Using LIP
 The current implementation is written in VBA and is used through the Immediate window of the VBA editor.
 
-### Install a package 
+### Install a package
 To install a package, simply type your command in the Immediate window of the VBA. There are three different installation methods:
 
 `lip.Install("Packagename")`
@@ -88,8 +88,17 @@ LIP is included in all Lime Core database versions from v6.0.0. If your applicat
 10. *Recommended:* Also install the LIP Package Builder by following the steps described [here](https://github.com/Lundalogik/addon-lip-package-builder).
 
 
-## Upgrade
-*More information coming*
+## Upgrading LIP to a new version
+**Important:** Steps 2 and 3 are impossible to do in the cloud environment. However, they are not needed when updating from v1.3.x -> 2.0.x.
+
+1. Download the zip file for [the latest LIP release](https://github.com/Lundalogik/lip/releases/).
+2. Replace the SQL procedures in your database with the updated ones by running the SQL-scripts (Important! Make sure you run the scripts on your database and NOT the master-database by selecting the correct database in the upper left corner).
+3. Restart the LDC.
+4. Restart the Lime CRM client.
+5. Delete the `vba\lip.bas` in the VBA and then import the new `vba\lip.bas` file to your VBA.
+6. Delete the `vba\FormProgress.frm` in the VBA and then import the new `vba\FormProgress.frm` to your VBA.
+7. Compile and save the VBA.
+8. *Recommended:* Also upgrade the LIP Package Builder by following the steps described [here](https://github.com/Lundalogik/addon-lip-package-builder).
 
 
 ## Definitions
@@ -111,7 +120,7 @@ When installing or upgrading a package, the stores will be searched from the top
 
 ## Versioning
 ### Package Versioning
-Packages should adhere to semantic versioning, example `1.0.0` or `MAJOR.MINOR.PATCH`. Please read [this](http://semver.org). 
+Packages should adhere to semantic versioning, example `1.0.0` or `MAJOR.MINOR.PATCH`. Please read [this](http://semver.org).
 
 Simplified:
 `MAJOR`: Breaks backwards compatibility
@@ -187,12 +196,12 @@ An example of what the file package.json could look like:
         "tables": [
             {
                 "name": "test",
-                "localname_singular": 
+                "localname_singular":
                 {
                     "sv": "Test",
                     "en_us": "Test"
                 },
-                "localname_plural": 
+                "localname_plural":
                 {
                     "sv": "Test",
                     "en_us": "Test"
@@ -212,7 +221,7 @@ An example of what the file package.json could look like:
                         "localname": {
                             "sv": "Titel",
                             "en_us": "Title"
-                        }, 
+                        },
                         "attributes": {
                             "fieldtype": "text",
                             "limereadonly": "1",
@@ -385,7 +394,7 @@ log ("Log all changes")|No|0/1 (No/Yes)|Default
 actionpad|No|text|<empty>
 
 ##### fields
-    
+
 ###### name (mandatory)
 The database name of the field. Example:
 
