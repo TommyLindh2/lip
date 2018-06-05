@@ -349,15 +349,16 @@ On Error GoTo ErrorHandler
                 Dim sJson As String
                 Dim sLine As String
         
-                'Look for packages.json or app.json
-                If VBA.Dir(sInstallPath & PackageName & "\" & "package.json") <> "" Then
-                    Open sInstallPath & PackageName & "\" & "package.json" For Input As #1
-                    
-                ElseIf VBA.Dir(sInstallPath & PackageName & "\" & "app.json") <> "" Then
-                    Open sInstallPath & PackageName & "\" & "app.json" For Input As #1
+                ' Look for lip.json
+                Dim sLipJsonPath As String
+                sLipJsonPath = sInstallPath & PackageName & "\" & "lip.json"
+                If VBA.Dir(sLipJsonPath) <> "" Then
+                    Open sLipJsonPath For Input As #1
                 Else
-                    sLog = sLog + Indent + "Installation failed: couldn't find any package.json or app.json in the zip-file" + VBA.vbNewLine
-                    Call Application.MessageBox("ERROR: Installation failed: couldn't find any package.json or app.json in the zip-file")
+                    Dim sErrorMessage As String
+                    sErrorMessage = "Installation failed: could not find any lip.json in the zip-file"
+                    sLog = sLog + Indent + sErrorMessage + VBA.vbNewLine
+                    Call Application.MessageBox("ERROR: " + sErrorMessage)
                     Application.Shell SaveLogFile(PackageName)
                     If Not m_frmProgress Is Nothing Then
                         m_frmProgress.Hide
@@ -374,7 +375,7 @@ On Error GoTo ErrorHandler
                 Close #1
                 Set Package = JSON.parse(sJson)
                 
-                ' ##TODO: Vad Ã¤r installPath fÃ¶r instÃ¤llning?
+                ' ##TODO: Vad är installPath för inställning?
                 If Package.Exists("installPath") Then
                     sInstallPath = ThisApplication.WebFolder & Package.Item("installPath") & "\"
                 End If
@@ -759,7 +760,7 @@ On Error GoTo ErrorHandler
         Set SearchForPackageInStores = SearchForPackageInLocalStores(PackageName)
         If SearchForPackageInStores Is Nothing Then
             'If we've reached this code, package wasn't found
-            Debug.Print Indent + ("Package/App '" & PackageName & "' not found!")
+            Debug.Print Indent + ("Package '" & PackageName & "' not found!")
             Set SearchForPackageInStores = Nothing
         End If
     End If
@@ -860,7 +861,7 @@ On Error GoTo ErrorHandler
                 Dim sJson As String
                 Dim sLine As String
                 
-                Open fld.Path & "\" & "app.json" For Input As #1
+                Open fld.Path & "\" & "lip.json" For Input As #1
                         
                 Do Until EOF(1)
                     Line Input #1, sLine
@@ -879,11 +880,11 @@ On Error GoTo ErrorHandler
                 Set oJSON = ParseJson(sJson) 'Create a JSON object from the string
                 
                 If Not oJSON.Item("install") Is Nothing Then
-                    Debug.Print Indent + ("Package/App '" & PackageName & "' found in local store '" & oStore & "'")
+                    Debug.Print Indent + ("Package '" & PackageName & "' found in local store '" & oStore & "'")
                     Set SearchForPackageInLocalStores = oJSON
                     Exit Function
                 Else
-                    Debug.Print Indent + ("Package/App '" & PackageName & "' found in local store '" & oStore & "' but has no valid install instructions!")
+                    Debug.Print Indent + ("Package '" & PackageName & "' found in local store '" & oStore & "' but has no valid install instructions!")
                     Set SearchForPackageInLocalStores = Nothing
                     Exit Function
                 End If
@@ -2264,11 +2265,11 @@ Public Sub SetLipVersionInPackageFile(sVersion As String)
 On Error GoTo ErrorHandler
 '    Open ThisApplication.WebFolder & DefaultInstallPath & PackageName & "\" & "packages.json" For Input As #1
 '
-'            ElseIf VBA.Dir(ThisApplication.WebFolder & DefaultInstallPath & PackageName & "\" & "app.json") <> "" Then
-'                Open ThisApplication.WebFolder & DefaultInstallPath & PackageName & "\" & "app.json" For Input As #1
+'            ElseIf VBA.Dir(ThisApplication.WebFolder & DefaultInstallPath & PackageName & "\" & "lip.json") <> "" Then
+'                Open ThisApplication.WebFolder & DefaultInstallPath & PackageName & "\" & "lip.json" For Input As #1
 '
 '            Else
-'                Debug.Print (Indent + "Installation failed: couldn't find any packages.json or app.json in the zip-file")
+'                Debug.Print (Indent + "Installation failed: could not find any lip.json in the zip-file")
 '                Exit Sub
 '            End If
 '
@@ -2370,7 +2371,7 @@ End Function
 
 
 
-' ##SUMMARY Verify that relations in package.json will not corrupt the database.
+' ##SUMMARY Verify that relations in lip.json will not corrupt the database.
 ' Either the fields on both sides of a relation do not exist or they both exist
 ' and in that case they must be linked to eachother as stated in the LIP package.
     
@@ -2516,5 +2517,8 @@ ErrorHandler:
     GetErrorMessageSQLProcedureNotFound = ""
     Call UI.ShowError("lip.GetErrorMessageSQLProcedureNotFound")
 End Function
+
+
+
 
 
