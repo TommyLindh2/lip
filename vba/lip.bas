@@ -126,9 +126,9 @@ Public Sub Install(PackageName As String, Optional upgrade As Boolean, Optional 
     End If
 
     If Package.Exists("installPath") Then
-        sInstallPath = ThisApplication.WebFolder & Package.Item("installPath") & "\"
+        sInstallPath = ThisApplication.TemporaryFolder & Package.Item("installPath") & "\"
     Else
-        sInstallPath = ThisApplication.WebFolder & DefaultInstallPath
+        sInstallPath = ThisApplication.TemporaryFolder & DefaultInstallPath
     End If
 
     Set Package = Package
@@ -327,9 +327,9 @@ On Error GoTo ErrorHandler
                 '##TODO: Redo this: the terms app and package have been redefined.
                 ' If prefix = app_ or app- then change installpath to /apps else /packages
                 If VBA.Left(PackageName, 4) = "app_" Or VBA.Left(PackageName, 4) = "app-" Then
-                    sInstallPath = Application.WebFolder & "apps\"
+                    sInstallPath = Application.TemporaryFolder & "apps\"
                 Else
-                    sInstallPath = Application.WebFolder & DefaultInstallPath
+                    sInstallPath = Application.TemporaryFolder & DefaultInstallPath
                 End If
                 
                 'If apps\packes folder doesn't exist
@@ -377,7 +377,7 @@ On Error GoTo ErrorHandler
                 
                 ' ##TODO: Vad är installPath för inställning?
                 If Package.Exists("installPath") Then
-                    sInstallPath = ThisApplication.WebFolder & Package.Item("installPath") & "\"
+                    sInstallPath = ThisApplication.TemporaryFolder & Package.Item("installPath") & "\"
                 End If
                 
                 'Install dependencies
@@ -1912,7 +1912,7 @@ On Error GoTo ErrorHandler
     sLog = sLog + Indent + "Creating a new packages.json file..." + VBA.vbNewLine
     Call CreateNewPackagesFile
     Dim fso As New FileSystemObject
-    InstallPath = ThisApplication.WebFolder & DefaultInstallPath
+    InstallPath = ThisApplication.TemporaryFolder & DefaultInstallPath
     If Not fso.FolderExists(InstallPath) Then
         fso.CreateFolder InstallPath
     End If
