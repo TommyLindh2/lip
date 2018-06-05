@@ -349,15 +349,12 @@ On Error GoTo ErrorHandler
                 Dim sJson As String
                 Dim sLine As String
         
-                'Look for packages.json or app.json
-                If VBA.Dir(sInstallPath & PackageName & "\" & "package.json") <> "" Then
-                    Open sInstallPath & PackageName & "\" & "package.json" For Input As #1
-                    
-                ElseIf VBA.Dir(sInstallPath & PackageName & "\" & "app.json") <> "" Then
-                    Open sInstallPath & PackageName & "\" & "app.json" For Input As #1
+                'Look for lip.json
+                If VBA.Dir(sInstallPath & PackageName & "\" & "lip.json") <> "" Then
+                    Open sInstallPath & PackageName & "\" & "lip.json" For Input As #1
                 Else
-                    sLog = sLog + Indent + "Installation failed: couldn't find any package.json or app.json in the zip-file" + VBA.vbNewLine
-                    Call Application.MessageBox("ERROR: Installation failed: couldn't find any package.json or app.json in the zip-file")
+                    sLog = sLog + Indent + "Installation failed: couldn't find any lip.json in the zip-file" + VBA.vbNewLine
+                    Call Application.MessageBox("ERROR: Installation failed: couldn't find any lip.json in the zip-file")
                     Application.Shell SaveLogFile(PackageName)
                     If Not m_frmProgress Is Nothing Then
                         m_frmProgress.Hide
@@ -2370,7 +2367,7 @@ End Function
 
 
 
-' ##SUMMARY Verify that relations in package.json will not corrupt the database.
+' ##SUMMARY Verify that relations in lip.json will not corrupt the database.
 ' Either the fields on both sides of a relation do not exist or they both exist
 ' and in that case they must be linked to eachother as stated in the LIP package.
     
@@ -2516,5 +2513,8 @@ ErrorHandler:
     GetErrorMessageSQLProcedureNotFound = ""
     Call UI.ShowError("lip.GetErrorMessageSQLProcedureNotFound")
 End Function
+
+
+
 
 
