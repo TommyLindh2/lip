@@ -1,5 +1,15 @@
 # Changelog for LIP
 
+## vNEXT
+**Released:** 2018-xx-xx
+
+**Authors:** Jonny Springare
+
+**Comments:** 
+
+* New version of the Progress bar VBA form that will solve issue in some environments.
+
+
 ## v1.3.0
 **Released:** 2018-04-xx
 
