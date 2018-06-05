@@ -371,7 +371,7 @@ On Error GoTo ErrorHandler
                 Close #1
                 Set Package = JSON.parse(sJson)
                 
-                ' ##TODO: Vad är installPath för inställning?
+                ' ##TODO: Vad �r installPath f�r inst�llning?
                 If Package.Exists("installPath") Then
                     sInstallPath = ThisApplication.WebFolder & Package.Item("installPath") & "\"
                 End If
@@ -756,7 +756,7 @@ On Error GoTo ErrorHandler
         Set SearchForPackageInStores = SearchForPackageInLocalStores(PackageName)
         If SearchForPackageInStores Is Nothing Then
             'If we've reached this code, package wasn't found
-            Debug.Print Indent + ("Package/App '" & PackageName & "' not found!")
+            Debug.Print Indent + ("Package '" & PackageName & "' not found!")
             Set SearchForPackageInStores = Nothing
         End If
     End If
@@ -857,7 +857,7 @@ On Error GoTo ErrorHandler
                 Dim sJson As String
                 Dim sLine As String
                 
-                Open fld.Path & "\" & "app.json" For Input As #1
+                Open fld.Path & "\" & "lip.json" For Input As #1
                         
                 Do Until EOF(1)
                     Line Input #1, sLine
@@ -876,11 +876,11 @@ On Error GoTo ErrorHandler
                 Set oJSON = ParseJson(sJson) 'Create a JSON object from the string
                 
                 If Not oJSON.Item("install") Is Nothing Then
-                    Debug.Print Indent + ("Package/App '" & PackageName & "' found in local store '" & oStore & "'")
+                    Debug.Print Indent + ("Package '" & PackageName & "' found in local store '" & oStore & "'")
                     Set SearchForPackageInLocalStores = oJSON
                     Exit Function
                 Else
-                    Debug.Print Indent + ("Package/App '" & PackageName & "' found in local store '" & oStore & "' but has no valid install instructions!")
+                    Debug.Print Indent + ("Package '" & PackageName & "' found in local store '" & oStore & "' but has no valid install instructions!")
                     Set SearchForPackageInLocalStores = Nothing
                     Exit Function
                 End If
@@ -2261,11 +2261,11 @@ Public Sub SetLipVersionInPackageFile(sVersion As String)
 On Error GoTo ErrorHandler
 '    Open ThisApplication.WebFolder & DefaultInstallPath & PackageName & "\" & "packages.json" For Input As #1
 '
-'            ElseIf VBA.Dir(ThisApplication.WebFolder & DefaultInstallPath & PackageName & "\" & "app.json") <> "" Then
-'                Open ThisApplication.WebFolder & DefaultInstallPath & PackageName & "\" & "app.json" For Input As #1
+'            ElseIf VBA.Dir(ThisApplication.WebFolder & DefaultInstallPath & PackageName & "\" & "lip.json") <> "" Then
+'                Open ThisApplication.WebFolder & DefaultInstallPath & PackageName & "\" & "lip.json" For Input As #1
 '
 '            Else
-'                Debug.Print (Indent + "Installation failed: couldn't find any packages.json or app.json in the zip-file")
+'                Debug.Print (Indent + "Installation failed: could not find any lip.json in the zip-file")
 '                Exit Sub
 '            End If
 '
