@@ -1,5 +1,7 @@
 # LIP - Package Management for Lime CRM
 
+**Install LIP? Download the latest LIP release here: https://github.com/Lundalogik/lip/releases/**
+
 LIP is a package management tool for Lime CRM add-ons. A package can contain for example tables and fields, VBA modules and localizations. LIP can install add-ons from a zip file and in some cases also download and install packages from the App Store. The latter is under reconstruction and will work for all Community or Core add-ons in the future.
 
 LIP is inspired by Pythons PIP and Nodes NPM.
