@@ -135,20 +135,21 @@ Public Sub Install(PackageName As String, Optional upgrade As Boolean, Optional 
     
     
     
-    'Parse result from store
-    PackageVersion = findNewestVersion(Package.Item("versions"))
-
-    'Check if package already exsists
-    If Not upgrade Then
-        If CheckForLocalInstalledPackage(PackageName, PackageVersion) = True Then
-            Call Lime.MessageBox("Package already installed. If you want to upgrade the package, run command: " & VBA.vbNewLine & VBA.vbNewLine & "Call lip.Install(""" & PackageName & """, True)", vbInformation)
-            Application.MousePointer = 0
-            Exit Sub
-        End If
-    End If
+    'LJE This is not used anymore
+    ''Parse result from store
+    'PackageVersion = findNewestVersion(Package.Item("versions"))
+    '
+    ''Check if package already exsists
+    'If Not upgrade Then
+    '    If CheckForLocalInstalledPackage(PackageName, PackageVersion) = True Then
+    '        Call Lime.MessageBox("Package already installed. If you want to upgrade the package, run command: " & VBA.vbNewLine & VBA.vbNewLine & "Call lip.Install(""" & PackageName & """, True)", vbInformation)
+    '        Application.MousePointer = 0
+    '        Exit Sub
+    '    End If
+    'End If
     
     'Install dependecies
-    If Package.Exists("dependencies") Then
+    If Package.Exists("dependencies") And Package("dependencies").Count > 0 Then
         Call updateProgressBar("Installing dependencies", m_progressDouble)
     
         IncreaseIndent
@@ -183,7 +184,7 @@ Public Sub Install(PackageName As String, Optional upgrade As Boolean, Optional 
         End If
     Else
         bOK = False
-        sLog = sLog + Indent + "Error: Could not download " + PackageName + " from url: " + downloadURL
+        sLog = sLog + Indent + strDownloadError
     End If
     
     If bOK Then
@@ -1555,7 +1556,9 @@ On Error GoTo ErrorHandler
     Set WinHttpReq = CreateObject("Microsoft.XMLHTTP")
     WinHttpReq.Open "GET", downloadURL + "?" + qs, False
     WinHttpReq.Send
-
+    
+    DownloadFile = ""
+    
     myURL = WinHttpReq.responseBody
     If WinHttpReq.Status = 200 Then
         Set oStream = CreateObject("ADODB.Stream")
@@ -1564,8 +1567,10 @@ On Error GoTo ErrorHandler
         oStream.Write WinHttpReq.responseBody
         oStream.SaveToFile InstallPath + PackageName + ".zip", 2 ' 1 = no overwrite, 2 = overwrite
         oStream.Close
+    Else
+        DownloadFile = "Couldn't download file from " & downloadURL & vbCrLf & vbCrLf & Err.Description
     End If
-    DownloadFile = ""
+    
     Exit Function
 ErrorHandler:
     DownloadFile = "Couldn't download file from " & downloadURL & vbCrLf & vbCrLf & Err.Description
