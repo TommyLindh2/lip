@@ -149,25 +149,27 @@ Public Sub Install(PackageName As String, Optional upgrade As Boolean, Optional 
     'End If
     
     'Install dependecies
-    If Package.Exists("dependencies") And Package("dependencies").Count > 0 Then
-        Call updateProgressBar("Installing dependencies", m_progressDouble)
-    
-        IncreaseIndent
+    If Package.Exists("dependencies") Then
+        If Package("dependencies").Count > 0 Then
+            Call updateProgressBar("Installing dependencies", m_progressDouble)
         
-        tempProgress = m_progressDouble
-        tempCaption = m_frmProgress.Caption
-        m_progressDouble = 0
-        
-        Call InstallDependencies(Package, Simulate)
-        
-        If m_frmProgress Is Nothing Then
-            Set m_frmProgress = New FormProgress
-            m_frmProgress.show
+            IncreaseIndent
+            
+            tempProgress = m_progressDouble
+            tempCaption = m_frmProgress.Caption
+            m_progressDouble = 0
+            
+            Call InstallDependencies(Package, Simulate)
+            
+            If m_frmProgress Is Nothing Then
+                Set m_frmProgress = New FormProgress
+                m_frmProgress.show
+            End If
+            m_progressDouble = tempProgress
+            m_frmProgress.Caption = tempCaption
+            
+            DecreaseIndent
         End If
-        m_progressDouble = tempProgress
-        m_frmProgress.Caption = tempCaption
-        
-        DecreaseIndent
     End If
     
     'Download and unzip
@@ -381,25 +383,26 @@ On Error GoTo ErrorHandler
                 End If
                 
                 'Install dependencies
-                If Package.Exists("dependencies") And Package("dependencies").Count > 0 Then
-                    
-                    IncreaseIndent
-                    
-                    tempProgress = m_progressDouble
-                    tempCaption = m_frmProgress.Caption
-                    m_progressDouble = 0
-                    Call updateProgressBar("Installing dependencies", m_progressDouble)
-                    
-                    Call InstallDependencies(Package, Simulate)
-                    
-                    If m_frmProgress Is Nothing Then
-                        Set m_frmProgress = New FormProgress
-                        m_frmProgress.show
+                If Package.Exists("dependencies") Then
+                    If Package("dependencies").Count > 0 Then
+                        IncreaseIndent
+                        
+                        tempProgress = m_progressDouble
+                        tempCaption = m_frmProgress.Caption
+                        m_progressDouble = 0
+                        Call updateProgressBar("Installing dependencies", m_progressDouble)
+                        
+                        Call InstallDependencies(Package, Simulate)
+                        
+                        If m_frmProgress Is Nothing Then
+                            Set m_frmProgress = New FormProgress
+                            m_frmProgress.show
+                        End If
+                        m_progressDouble = tempProgress
+                        m_frmProgress.Caption = tempCaption
+                        
+                        DecreaseIndent
                     End If
-                    m_progressDouble = tempProgress
-                    m_frmProgress.Caption = tempCaption
-                    
-                    DecreaseIndent
                 End If
                 
                 If Not InstallPackageComponents(PackageName, 1, Package, sInstallPath, Simulate) Then
@@ -1829,12 +1832,14 @@ On Error GoTo ErrorHandler
 
     If Not oPackageFile Is Nothing Then
 
-        If oPackageFile.Exists("dependencies") And Package("dependencies").Count > 0 Then
-            Set InstalledPackages = oPackageFile.Item("dependencies")
-            If InstalledPackages.Exists(PackageName) = True Then
-                Call ReturnDict.Add(PackageName, InstalledPackages.Item(PackageName))
-                Set FindPackageLocally = ReturnDict
-                Exit Function
+        If oPackageFile.Exists("dependencies") Then
+            If Package("dependencies").Count > 0 Then
+                Set InstalledPackages = oPackageFile.Item("dependencies")
+                If InstalledPackages.Exists(PackageName) = True Then
+                    Call ReturnDict.Add(PackageName, InstalledPackages.Item(PackageName))
+                    Set FindPackageLocally = ReturnDict
+                    Exit Function
+                End If
             End If
         Else
             sLog = sLog + Indent + ("Couldn't find dependencies in packages.json") + VBA.vbNewLine
