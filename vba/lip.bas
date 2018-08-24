@@ -381,7 +381,7 @@ On Error GoTo ErrorHandler
                 End If
                 
                 'Install dependencies
-                If Package.Exists("dependencies") Then
+                If Package.Exists("dependencies") And Package("dependencies").Count > 0 Then
                     
                     IncreaseIndent
                     
@@ -1829,7 +1829,7 @@ On Error GoTo ErrorHandler
 
     If Not oPackageFile Is Nothing Then
 
-        If oPackageFile.Exists("dependencies") Then
+        If oPackageFile.Exists("dependencies") And Package("dependencies").Count > 0 Then
             Set InstalledPackages = oPackageFile.Item("dependencies")
             If InstalledPackages.Exists(PackageName) = True Then
                 Call ReturnDict.Add(PackageName, InstalledPackages.Item(PackageName))
