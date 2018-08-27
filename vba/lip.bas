@@ -1833,7 +1833,7 @@ On Error GoTo ErrorHandler
     If Not oPackageFile Is Nothing Then
 
         If oPackageFile.Exists("dependencies") Then
-            If Package("dependencies").Count > 0 Then
+            If oPackageFile("dependencies").Count > 0 Then
                 Set InstalledPackages = oPackageFile.Item("dependencies")
                 If InstalledPackages.Exists(PackageName) = True Then
                     Call ReturnDict.Add(PackageName, InstalledPackages.Item(PackageName))
