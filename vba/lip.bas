@@ -69,7 +69,7 @@ Public Sub Install(PackageName As String, Optional upgrade As Boolean, Optional 
     Call m_frmProgress.show
     
     'Check if first use ever
-    If Dir(ThisApplication.WebFolder + "packages.json") = "" Then
+    If VBA.Dir(ThisApplication.WebFolder + "packages.json") = "" Then
         sLog = sLog + Indent + "No packages.json found, assuming fresh install" + VBA.vbNewLine
         
         tempProgress = m_progressDouble
@@ -217,7 +217,7 @@ Public Sub Install(PackageName As String, Optional upgrade As Boolean, Optional 
     If Simulate Then
         Call ThisApplication.Shell(sLogfile)
         If bOK Then
-            If vbYes = Lime.MessageBox("Simulation of installation process completed for package " & PackageName & ". Please check the result in the recently opened logfile." & VBA.vbNewLine & VBA.vbNewLine & "Do you wish to proceed with the installation?", vbInformation + vbYesNo + vbDefaultButton2) Then
+            If VBA.vbYes = Lime.MessageBox("Simulation of installation process completed for package " & PackageName & ". Please check the result in the recently opened logfile." & VBA.vbNewLine & VBA.vbNewLine & "Do you wish to proceed with the installation?", VBA.vbInformation + VBA.vbYesNo + VBA.vbDefaultButton2) Then
                 Call lip.Install(PackageName, upgrade, False)
             End If
         Else
