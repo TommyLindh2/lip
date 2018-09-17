@@ -4,13 +4,13 @@ Option Explicit
 'Lime Package Store, DO NOT CHANGE, used to download system files for LIP
 'Please add your own stores in packages.json
 Private Const BaseURL As String = "http://api.lime-bootstrap.com"
-Private Const PackageStoreApiURL As String = "/packages/"
-Private Const AppStoreApiURL As String = "/apps/"
+Private Const PackageStoreApiURL As String = "/addons/"
+Private Const AppStoreApiURL As String = "/addons/"
 
 Private Const DefaultInstallPath As String = "packages\"
 
 ' Used for setting the installed LIP version in the packages.json file that LIP creates upon first install.
-Private Const m_sLIPVersion As String = "1.3.0"
+Private Const m_sLIPVersion As String = "1.3.1"
 
 
 Private IndentLenght As String
@@ -1922,9 +1922,9 @@ On Error GoTo ErrorHandler
     strDownloadError = DownloadFile("vba_json", BaseURL + AppStoreApiURL, InstallPath)
     If strDownloadError = "" Then
         Call UnZip("vba_json", InstallPath)
-    
-        Call addModule("vba_json", "JSON", "JSON.bas", InstallPath, False)
-        Call addModule("vba_json", "cStringBuilder", "cStringBuilder.cls", InstallPath, False)
+                
+        Call addModule("vba_json", "JSON", "vba\JSON.bas", InstallPath, False)
+        Call addModule("vba_json", "cStringBuilder", "vba\cStringBuilder.cls", InstallPath, False)
     
         Call WriteToPackagesFile("vba_json", "1", False)
     
