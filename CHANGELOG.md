@@ -9,6 +9,7 @@
 
 * New version of the Progress bar VBA form that will solve issue in some environments.
 * lip.json is now used instead of package.json or app.json.
+* Installation files are now placed in temporary folder instead of actionpad folder
 
 * Verification of SQL procedures is done before installing a package
 
