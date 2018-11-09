@@ -33,7 +33,7 @@ On Error GoTo ErrorHandler:
     End If
 Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.UpgradePackage")
+    Call LC_UI.ShowError("lip.UpgradePackage")
 End Sub
 
 'Install package/app. Selects packagestore from packages.json
@@ -256,7 +256,7 @@ ErrorHandler:
         m_frmProgress.Hide
         Set m_frmProgress = Nothing
     End If
-    Call UI.ShowError("lip.Install")
+    Call LC_UI.ShowError("lip.Install")
 End Sub
 
 'Installs package from a zip-file
@@ -491,7 +491,7 @@ ErrorHandler:
         m_frmProgress.Hide
         Set m_frmProgress = Nothing
     End If
-    Call UI.ShowError("lip.InstallFromZip")
+    Call LC_UI.ShowError("lip.InstallFromZip")
 End Sub
 
 Private Function SaveLogFile(strPackageName As String) As String
@@ -520,7 +520,7 @@ On Error GoTo ErrorHandler
     Next LocalPackageName
 Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.InstallFromPackageFile")
+    Call LC_UI.ShowError("lip.InstallFromPackageFile")
 End Sub
 
 
@@ -553,7 +553,7 @@ Private Function VerifyPackage(PackageName As String, Package As Object) As Bool
 
     Exit Function
 ErrorHandler:
-    Call UI.ShowError("lip.VerifyPackage")
+    Call LC_UI.ShowError("lip.VerifyPackage")
 End Function
 
 
@@ -690,7 +690,7 @@ On Error GoTo ErrorHandler
 Exit Function
 ErrorHandler:
     InstallPackageComponents = False
-    Call UI.ShowError("lip.InstallPackageComponents")
+    Call LC_UI.ShowError("lip.InstallPackageComponents")
 End Function
 
 
@@ -734,7 +734,7 @@ Private Function InstallActionpads(oJSON As Object, sPackageFolderPath As String
     Exit Function
 ErrorHandler:
     InstallActionpads = False
-    Call UI.ShowError("lip.InstallActionpads")
+    Call LC_UI.ShowError("lip.InstallActionpads")
 End Function
 
 
@@ -757,7 +757,7 @@ On Error GoTo ErrorHandler
     Call DecreaseIndent
 Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.InstallDependencies")
+    Call LC_UI.ShowError("lip.InstallDependencies")
 End Sub
 
 
@@ -778,7 +778,7 @@ On Error GoTo ErrorHandler
 Exit Function
 ErrorHandler:
     Set SearchForPackageInStores = Nothing
-    Call UI.ShowError("lip.SearchForPackageInStores")
+    Call LC_UI.ShowError("lip.SearchForPackageInStores")
 End Function
 
 'LJE Search for package in online stores
@@ -831,7 +831,7 @@ On Error GoTo ErrorHandler
 Exit Function
 ErrorHandler:
     Set SearchForPackageInOnlineStores = Nothing
-    Call UI.ShowError("lip.SearchForPackageInOnlineStores")
+    Call LC_UI.ShowError("lip.SearchForPackageInOnlineStores")
 End Function
 
 
@@ -910,7 +910,7 @@ On Error GoTo ErrorHandler
     Exit Function
 ErrorHandler:
     Set SearchForPackageInLocalStores = Nothing
-    Call UI.ShowError("lip.SearchForPackageInLocalStores")
+    Call LC_UI.ShowError("lip.SearchForPackageInLocalStores")
 
 End Function
 
@@ -945,7 +945,7 @@ On Error GoTo ErrorHandler
     CheckForLocalInstalledPackage = False
 Exit Function
 ErrorHandler:
-    Call UI.ShowError("lip.CheckForLocalInstalledPackages")
+    Call LC_UI.ShowError("lip.CheckForLocalInstalledPackages")
 End Function
 
 Private Function getJSON(sURL As String) As String
@@ -971,7 +971,7 @@ On Error GoTo ErrorHandler
 Exit Function
 ErrorHandler:
     Set ParseJson = Nothing
-    Call UI.ShowError("lip.parseJSON")
+    Call LC_UI.ShowError("lip.parseJSON")
 End Function
 
 Private Function findNewestVersion(oVersions As Object) As Double
@@ -989,7 +989,7 @@ On Error GoTo ErrorHandler
 Exit Function
 ErrorHandler:
     findNewestVersion = -1
-    Call UI.ShowError("lip.findNewestVersion")
+    Call LC_UI.ShowError("lip.findNewestVersion")
 End Function
 
 Private Function InstallLocalize(oJSON As Object, Simulate As Boolean) As Boolean
@@ -1013,7 +1013,7 @@ Private Function InstallLocalize(oJSON As Object, Simulate As Boolean) As Boolea
 Exit Function
 ErrorHandler:
     InstallLocalize = False
-    Call UI.ShowError("lip.InstallLocalize")
+    Call LC_UI.ShowError("lip.InstallLocalize")
 End Function
 
 Private Function InstallFiles(oJSON As Object, PackageName As String, InstallPath As String, Simulate As Boolean) As Boolean
@@ -1055,7 +1055,7 @@ On Error GoTo ErrorHandler
 ErrorHandler:
     InstallFiles = False
     sLog = sLog + Indent + ("ERROR: " + Err.Description) + VBA.vbNewLine
-    Call UI.ShowError("lip.InstallFiles")
+    Call LC_UI.ShowError("lip.InstallFiles")
     IncreaseIndent
     DecreaseIndent
 End Function
@@ -1083,7 +1083,7 @@ End Function
 'Exit Function
 'ErrorHandler:
 '    InstallSQL = False
-'    Call UI.ShowError("lip.InstallSQL")
+'    Call LC_UI.ShowError("lip.InstallSQL")
 'End Function
 '
 'Private Function CreateSQLProcedure(Path As String, Name As String, ProcType As String) As Boolean
@@ -1130,7 +1130,7 @@ End Function
 'Exit Function
 'ErrorHandler:
 '    CreateSQLProcedure = False
-'    Call UI.ShowError("lip.CreateSQLProcedure")
+'    Call LC_UI.ShowError("lip.CreateSQLProcedure")
 'End Function
 
 Private Function InstallFieldsAndTables(oJSON As Object, ByRef sCreatedTables As String, ByRef sCreatedFields As String) As Boolean
@@ -1273,7 +1273,7 @@ ErrorHandler:
     Set oProc = Nothing
     InstallFieldsAndTables = False
     sLog = sLog + Indent + ("ERROR: " + Err.Description) + VBA.vbNewLine
-    Call UI.ShowError("lip.InstallFieldsAndTables")
+    Call LC_UI.ShowError("lip.InstallFieldsAndTables")
     IncreaseIndent
     DecreaseIndent
 End Function
@@ -1473,7 +1473,7 @@ ErrorHandler:
     Set oProc = Nothing
     AddField = False
     sLog = sLog + Indent + ("ERROR: " + Err.Description) + VBA.vbNewLine
-    Call UI.ShowError("lip.AddField")
+    Call LC_UI.ShowError("lip.AddField")
     IncreaseIndent
     DecreaseIndent
 End Function
@@ -1548,7 +1548,7 @@ ErrorHandler:
     Set oProcAttributes = Nothing
     SetTableAttributes = False
     sLog = sLog + Indent + ("ERROR: " + Err.Description) + VBA.vbNewLine
-    Call UI.ShowError("lip.SetTableAttributes")
+    Call LC_UI.ShowError("lip.SetTableAttributes")
     IncreaseIndent
     DecreaseIndent
 End Function
@@ -1613,7 +1613,7 @@ Private Sub UnZip(PackageName As String, InstallPath As String)
 
     Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.Unzip")
+    Call LC_UI.ShowError("lip.Unzip")
 End Sub
 
 Private Function InstallVBAComponents(PackageName As String, VBAModules As Object, InstallPath As String, Simulate As Boolean) As Boolean
@@ -1633,7 +1633,7 @@ Private Function InstallVBAComponents(PackageName As String, VBAModules As Objec
     Exit Function
 ErrorHandler:
     InstallVBAComponents = False
-    Call UI.ShowError("lip.InstallVBAComponents")
+    Call LC_UI.ShowError("lip.InstallVBAComponents")
 End Function
 
 Private Function addModule(PackageName As String, ModuleName As String, RelPath As String, InstallPath As String, Simulate As Boolean) As Boolean
@@ -1702,7 +1702,7 @@ Private Function addModule(PackageName As String, ModuleName As String, RelPath 
 ErrorHandler:
     addModule = False
     sLog = sLog + Indent + ("ERROR: Couldn't add module " + ModuleName + ". " + Err.Description) + VBA.vbNewLine
-    Call UI.ShowError("lip.addModule")
+    Call LC_UI.ShowError("lip.addModule")
 End Function
 
 Private Function ComponentExists(ComponentName As String, VBComps As Object) As Boolean
@@ -1720,7 +1720,7 @@ On Error GoTo ErrorHandler
 
     Exit Function
 ErrorHandler:
-    Call UI.ShowError("lip.ComponentExists")
+    Call LC_UI.ShowError("lip.ComponentExists")
 End Function
 
 Private Function WriteToPackagesFile(PackageName As String, Version As String, Simulate As Boolean) As Boolean
@@ -1752,7 +1752,7 @@ On Error GoTo ErrorHandler
 ErrorHandler:
     WriteToPackagesFile = False
     sLog = sLog + Indent + ("ERROR: " + Err.Description) + VBA.vbNewLine
-    Call UI.ShowError("lip.WriteToPackagesFile")
+    Call LC_UI.ShowError("lip.WriteToPackagesFile")
     IncreaseIndent
     DecreaseIndent
 End Function
@@ -1802,7 +1802,7 @@ On Error GoTo ErrorHandler
     Exit Function
 ErrorHandler:
     PrettyPrintJSON = ""
-    Call UI.ShowError("lip.PrettyPrintJSON")
+    Call LC_UI.ShowError("lip.PrettyPrintJSON")
 End Function
 
 Private Function ReadPackageFile() As Object
@@ -1823,7 +1823,7 @@ On Error GoTo ErrorHandler
     Exit Function
 ErrorHandler:
     Set ReadPackageFile = Nothing
-    Call UI.ShowError("lip.ReadPackageFile")
+    Call LC_UI.ShowError("lip.ReadPackageFile")
 End Function
 
 Private Function FindPackageLocally(PackageName As String) As Object
@@ -1853,7 +1853,7 @@ On Error GoTo ErrorHandler
     Exit Function
 ErrorHandler:
     Set FindPackageLocally = Nothing
-    Call UI.ShowError("lip.FindPackageLocally")
+    Call LC_UI.ShowError("lip.FindPackageLocally")
 End Function
 
 
@@ -1883,7 +1883,7 @@ Public Sub CreateNewPackagesFile()
     
     Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.CreateNewPackagesFile")
+    Call LC_UI.ShowError("lip.CreateNewPackagesFile")
 End Sub
 
 
@@ -1901,7 +1901,7 @@ On Error GoTo ErrorHandler
 
     Exit Function
 ErrorHandler:
-    Call UI.ShowError("lip.GetInstalledPackages")
+    Call LC_UI.ShowError("lip.GetInstalledPackages")
 End Function
 
 
@@ -1960,7 +1960,7 @@ On Error GoTo ErrorHandler
     
     Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.InstallLIP")
+    Call LC_UI.ShowError("lip.InstallLIP")
 End Sub
 
 
@@ -2043,7 +2043,7 @@ Private Sub SetRecordPropertyText(oRec As LDE.Record, sPropertyName As String, s
 
     Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.SetRecordPropertyText")
+    Call LC_UI.ShowError("lip.SetRecordPropertyText")
 End Sub
 
 
@@ -2052,7 +2052,7 @@ On Error GoTo ErrorHandler
     Indent = Indent + IndentLenght
     Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.IncreaseIndent")
+    Call LC_UI.ShowError("lip.IncreaseIndent")
 End Sub
 
 Private Sub DecreaseIndent()
@@ -2066,7 +2066,7 @@ On Error GoTo ErrorHandler
     
     Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.DecreaseIndent")
+    Call LC_UI.ShowError("lip.DecreaseIndent")
 End Sub
 
 Private Function InstallRelations(oJSON As Object, sCreatedFields As String) As Boolean
@@ -2140,7 +2140,7 @@ ErrorHandler:
     Set oProc = Nothing
     InstallRelations = False
     sLog = sLog + Indent + ("ERROR: " + Err.Description) + VBA.vbNewLine
-    Call UI.ShowError("lip.InstallRelations")
+    Call LC_UI.ShowError("lip.InstallRelations")
 End Function
 
 Private Function RollbackFieldsAndTables(sCreatedTables As String, sCreatedFields As String) As Boolean
@@ -2179,7 +2179,7 @@ On Error GoTo ErrorHandler
     RollbackFieldsAndTables = True
 Exit Function
 ErrorHandler:
-    Call UI.ShowError("lip.RollbackFieldsAndTables")
+    Call LC_UI.ShowError("lip.RollbackFieldsAndTables")
 End Function
 
 'LJE 20160212 Check if a new version of LIP exists
@@ -2226,7 +2226,7 @@ On Error GoTo ErrorHandler
     End If
     Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.UpdateLIPOnNewVersion")
+    Call LC_UI.ShowError("lip.UpdateLIPOnNewVersion")
 End Sub
 'LJE 20160212 Upgrade LIP if new version exists
 Private Sub UpdateLIP()
@@ -2254,7 +2254,7 @@ On Error GoTo ErrorHandler
 'Call VBComps.Remove(VBComps.Item(tempModuleName)
  Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.UpdateLIP")
+    Call LC_UI.ShowError("lip.UpdateLIP")
 End Sub
 
 'LJE Remove temporary lip.bas after update
@@ -2267,7 +2267,7 @@ Set VBComps = Application.VBE.ActiveVBProject.VBComponents
 Call VBComps.Remove(VBComps.Item(sModuleName))
 Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.RemoveModule")
+    Call LC_UI.ShowError("lip.RemoveModule")
 End Sub
 
 'LJE TODO Refactor with helper method to write json
@@ -2291,7 +2291,7 @@ On Error GoTo ErrorHandler
 '            Close #1
     Exit Sub
 ErrorHandler:
-    Call UI.ShowError("lip.SetLipVersionInPackageFile")
+    Call LC_UI.ShowError("lip.SetLipVersionInPackageFile")
 End Sub
 
 Private Function EndInstallation() As Boolean
@@ -2318,7 +2318,7 @@ Exit Function
 ErrorHandler:
     Set oProc = Nothing
     EndInstallation = False
-    Call UI.ShowError("lip.EndInstallation")
+    Call LC_UI.ShowError("lip.EndInstallation")
 End Function
 
 Public Sub updateProgressBar(sMessage As String, dblProgress As Double)
@@ -2335,7 +2335,7 @@ ErrorHandler:
         m_frmProgress.Hide
         Set m_frmProgress = Nothing
     End If
-    Call UI.ShowError("lip.updateProgressBar")
+    Call LC_UI.ShowError("lip.updateProgressBar")
 End Sub
 
 'Helper function to get LIP version from packages.json.
@@ -2358,7 +2358,7 @@ Exit Function
 
 ErrorHandler:
     
-    Call UI.ShowError("lip.GetInstalledLIPVersion")
+    Call LC_UI.ShowError("lip.GetInstalledLIPVersion")
 
 End Function
 
@@ -2376,7 +2376,7 @@ Private Function selectZipFile() As String
 
     Exit Function
 ErrorHandler:
-    Call UI.ShowError("lip.selectZipFile")
+    Call LC_UI.ShowError("lip.selectZipFile")
 End Function
 
 
@@ -2426,7 +2426,7 @@ Private Function verifyRelations(Package As Object) As Boolean
     Exit Function
 ErrorHandler:
     verifyRelations = False
-    Call UI.ShowError("lip.verifyRelations")
+    Call LC_UI.ShowError("lip.verifyRelations")
 End Function
 
 
@@ -2443,7 +2443,7 @@ Private Function fieldExists(tableName As String, fieldName As String) As Boolea
     Exit Function
 ErrorHandler:
     fieldExists = False
-    Call UI.ShowError("lip.fieldExists")
+    Call LC_UI.ShowError("lip.fieldExists")
 End Function
 
 
@@ -2468,7 +2468,7 @@ Private Function fieldsAreRelated(f1 As LDE.field, f2 As LDE.field) As Boolean
     Exit Function
 ErrorHandler:
     fieldsAreRelated = False
-    Call UI.ShowError("lip.fieldsAreRelated")
+    Call LC_UI.ShowError("lip.fieldsAreRelated")
 End Function
 
 
@@ -2481,7 +2481,7 @@ Private Function isRelationField(f As LDE.field) As Boolean
     Exit Function
 ErrorHandler:
     isRelationField = False
-    Call UI.ShowError("lip.isRelationField")
+    Call LC_UI.ShowError("lip.isRelationField")
 End Function
 
 
@@ -2512,7 +2512,7 @@ Private Function GetCleanTimestamp() As String
 
     Exit Function
 ErrorHandler:
-    Call UI.ShowError("lip.GetCleanTimestamp")
+    Call LC_UI.ShowError("lip.GetCleanTimestamp")
 End Function
 
 
@@ -2525,7 +2525,7 @@ Private Function GetErrorMessageSQLProcedureNotFound(sProcedureName As String) A
     Exit Function
 ErrorHandler:
     GetErrorMessageSQLProcedureNotFound = ""
-    Call UI.ShowError("lip.GetErrorMessageSQLProcedureNotFound")
+    Call LC_UI.ShowError("lip.GetErrorMessageSQLProcedureNotFound")
 End Function
 
 Private Function VerifyLIPInstallation() As Boolean
@@ -2544,7 +2544,7 @@ On Error GoTo ErrorHandler
     
 Exit Function
 ErrorHandler:
-    Call UI.ShowError("lip.VerifyLIPInstallation")
+    Call LC_UI.ShowError("lip.VerifyLIPInstallation")
 End Function
 
 Private Function VerifySQL() As String
@@ -2556,11 +2556,11 @@ On Error GoTo ErrorHandler
     Dim oProc As LDE.Procedure
     Dim bExists As Boolean
     
-    sProcNames = Array("csp_lip_addRelations", _
+    sProcNames = Array("csp_lip_addrelations", _
         "csp_lip_settableattributes", _
         "csp_lip_setfieldattributes", _
-        "csp_lip_removeTablesAndFields", _
-        "csp_lip_endInstallation", _
+        "csp_lip_removetablesandfields", _
+        "csp_lip_endinstallation", _
         "csp_lip_createtable", _
         "csp_lip_createfield")
     
@@ -2586,5 +2586,5 @@ On Error GoTo ErrorHandler
 Exit Function
 
 ErrorHandler:
-    Call UI.ShowError("lip.VerifySQL")
+    Call LC_UI.ShowError("lip.VerifySQL")
 End Function
