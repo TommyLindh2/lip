@@ -11,6 +11,8 @@
 * lip.json is now used instead of package.json or app.json.
 * Installation files are now placed in temporary folder instead of actionpad folder
 
+* Verification of SQL procedures is done before installing a package
+
 
 ## v1.3.0
 **Released:** 2018-04-xx
