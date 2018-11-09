@@ -3,7 +3,7 @@ Option Explicit
 
 'Lime Package Store, DO NOT CHANGE, used to download system files for LIP
 'Please add your own stores in packages.json
-Private Const BaseURL As String = "http://api.lime-bootstrap.com"
+Private Const BaseURL As String = "https://api.lime-bootstrap.com"
 Private Const PackageStoreApiURL As String = "/addons/"
 Private Const AppStoreApiURL As String = "/addons/"
 
@@ -1880,8 +1880,7 @@ Public Sub CreateNewPackagesFile()
     'TODO write to GitHub
     tf.WriteLine ("    ""lipversion"" : """ & m_sLIPVersion & """,")
     tf.WriteLine ("    ""onlinestores"" : {")
-    tf.WriteLine ("        ""PackageStore"" : ""http://api.lime-bootstrap.com/packages/"",")
-    tf.WriteLine ("        ""Bootstrap Appstore"" : ""http://api.lime-bootstrap.com/apps/""")
+    tf.WriteLine ("        ""Store"" : ""https://api.lime-bootstrap.com/addons/""")
     tf.WriteLine ("    },")
     tf.WriteLine ("    ""localstores"" : {")
     tf.WriteLine ("    },")
