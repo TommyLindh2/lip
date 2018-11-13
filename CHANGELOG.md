@@ -15,7 +15,7 @@
 
 
 ## v1.3.0
-**Released:** 2018-04-xx
+**Released:** 2018-05-04
 
 **Authors:** Fredrik Eriksson, Lars Jensen, Jonny Springare
 
