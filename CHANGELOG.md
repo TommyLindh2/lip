@@ -14,6 +14,16 @@
 * Compliance with naming standard of VBA modules in latest Lime Core application (LC_ as prefix).
 
 
+## v1.3.1
+**Released:** 2018-09-17
+
+**Authors:** Lars Jensen
+
+**Comments:** 
+
+* Fix for lip.installlip which installed vba_json automatically through Lime Store. A repo för vba_json now recides on the Lime Store and all static variables point to that.
+
+
 ## v1.3.0
 **Released:** 2018-05-04
 
