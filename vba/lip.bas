@@ -2556,6 +2556,9 @@ ErrorHandler:
     Call LC_UI.ShowError("lip.VerifyLIPInstallation")
 End Function
 
+
+' ## SUMMARY Checks if the required SQL Procedures are installed correctly.
+' Not having done that can cause weird errors that are hard to understand.
 Private Function VerifySQL() As String
 On Error GoTo ErrorHandler
 
@@ -2578,7 +2581,7 @@ On Error GoTo ErrorHandler
         bExists = False
         
         For Each oProc In Application.Database.Procedures
-            If oProc.Name = sProcName Then
+            If VBA.LCase(oProc.Name) = VBA.LCase(sProcName) Then
                 bExists = True
                 Exit For
             End If
