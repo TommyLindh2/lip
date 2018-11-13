@@ -3,7 +3,7 @@
 ## vNEXT
 **Released:** 2018-xx-xx
 
-**Authors:** Jonny Springare
+**Authors:** Jonny Springare, Lars Jensen, Fredrik Eriksson
 
 **Comments:** 
 
