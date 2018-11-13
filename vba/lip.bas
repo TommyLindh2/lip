@@ -36,7 +36,7 @@ ErrorHandler:
     Call LC_UI.ShowError("lip.UpgradePackage")
 End Sub
 
-'Install package/app. Selects packagestore from packages.json
+'Install package. Selects packagestore from packages.json
 Public Sub Install(PackageName As String, Optional upgrade As Boolean, Optional Simulate As Boolean = True)
     On Error GoTo ErrorHandler
     
@@ -767,7 +767,7 @@ End Sub
 
 Private Function SearchForPackageInStores(PackageName As String) As Object
 On Error GoTo ErrorHandler
-        
+    
     Set SearchForPackageInStores = SearchForPackageInOnlineStores(PackageName)
     
     If SearchForPackageInStores Is Nothing Then
@@ -908,7 +908,7 @@ On Error GoTo ErrorHandler
     Next
        
     'If we've reached this code, package wasn't found
-    Debug.Print Indent + ("Package/App '" & PackageName & "' not found in local stores!")
+    Debug.Print Indent + ("Package/Add-on '" & PackageName & "' not found in local stores!")
     Set SearchForPackageInLocalStores = Nothing
     
     Exit Function
