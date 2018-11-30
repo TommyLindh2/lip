@@ -324,9 +324,7 @@ On Error GoTo ErrorHandler
                 
                 ' Copy file to actionpads\apps
                 Dim PackageName As String
-                Dim strArray() As String
-                strArray = VBA.Split(sZipPath, "\")
-                PackageName = VBA.Split(strArray(UBound(strArray)), ".")(0)
+                PackageName = LCO.ExtractFileTitle(sZipPath)
                 sLog = sLog + Indent + "====== LIP " & VBA.IIf(Simulate, "Simulation", "Installation") & ": " + PackageName + " ======" + VBA.vbNewLine
                 sLog = sLog + Indent + "Copying and unzipping file" + VBA.vbNewLine
                 
