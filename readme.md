@@ -566,3 +566,7 @@ Here you specify which relations to create. This section only contains informati
 In newer versions of the Lime Core application, the VBA modules has been given a prefix `LC_`. The code in this add-on relies on the existance of a VBA module called `LC_UI`. If that is not present, check for a module called `UI`. If it has a sub called `ShowError` then use that instead. 
 
 ***Advice:*** Strongly consider changing the name of the VBA module `UI` in your Lime CRM solution to `LC_UI` as this will be used by all add-ons going forward. Therefore, this will be a recurring issue whenever you are upgrading LIP or installing or upgrading add-ons in the future.
+
+
+### VBA Crashes When Using lip.InstallFromZip
+The error occurs in the Sub `Unzip`. Make sure that your VBA editor is set to *Break on Unhandled Errors* and not on *Break on all Errors*. The latter can be useful when developing but must never be activated in a production environment. You find this setting in the VBA editor under Tools -> Options -> General (tab).
